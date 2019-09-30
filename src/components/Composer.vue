@@ -89,29 +89,26 @@
 		<div v-if="noReply" class="warning noreply-box">
 			{{ t('mail', 'Note that the mail came from a noreply address so	your reply will probably not be read.') }}
 		</div>
-		<div v-if="editorReady" class="composer-fields">
+		<div class="composer-fields">
 			<!--@keypress="onBodyKeyPress"-->
-			<ckeditor
+			<TextEditor
 				v-if="editorPlainText"
 				key="editor-plain"
 				v-model="bodyVal"
-				:editor="editor"
-				:config="editorPlainConfig"
 				name="body"
 				class="message-body"
 				@ready="onPlainTextEditorReady"
 				@input="onInputChanged"
-			></ckeditor>
-			<ckeditor
+			></TextEditor>
+			<TextEditor
 				v-else
 				key="editor-rich"
 				v-model="bodyVal"
-				:editor="editor"
-				:config="editorRichConfig"
+				:html="true"
 				name="body"
 				class="message-body"
 				@input="onInputChanged"
-			></ckeditor>
+			></TextEditor>
 		</div>
 		<div class="composer-actions">
 			<div>
@@ -150,10 +147,7 @@
 <script>
 import _ from 'lodash'
 import Autosize from 'vue-autosize'
-import CKBalloon from '@ckeditor/ckeditor5-build-balloon'
-import CKEditor from '@ckeditor/ckeditor5-vue'
 import debouncePromise from 'debounce-promise'
-import {getLanguage} from 'nextcloud-l10n'
 import Actions from 'nextcloud-vue/dist/Components/Actions'
 import ActionCheckbox from 'nextcloud-vue/dist/Components/ActionCheckbox'
 import ActionText from 'nextcloud-vue/dist/Components/ActionText'
@@ -161,6 +155,7 @@ import Multiselect from 'nextcloud-vue/dist/Components/Multiselect'
 import {translate as t} from 'nextcloud-l10n'
 import Vue from 'vue'
 
+import TextEditor from './TextEditor'
 import {findRecipient} from '../service/AutocompleteService'
 import {htmlToText} from '../util/HtmlHelper'
 import Loading from './Loading'
@@ -186,9 +181,9 @@ export default {
 		ActionCheckbox,
 		ActionText,
 		ComposerAttachments,
-		ckeditor: CKEditor.component,
 		Loading,
 		Multiselect,
+		TextEditor,
 	},
 	props: {
 		replyTo: {
@@ -254,11 +249,6 @@ export default {
 			selectCc: this.cc,
 			selectBcc: this.bcc,
 			editorReady: false,
-			editor: CKBalloon,
-			plainTextEdit: undefined,
-			richEditor: undefined,
-			editorPlainConfig: {},
-			editorRichConfig: {},
 			editorPlainText: this.isPlainText,
 		}
 	},
@@ -292,39 +282,8 @@ export default {
 		}
 
 		this.bodyVal = this.bodyWithSignature(this.selectedAlias, this.bodyVal)
-
-		this.loadEditorTranslations(getLanguage())
 	},
 	methods: {
-		showEditor(language) {
-			this.editorPlainConfig = {
-				language: language,
-				placeholder: t('mail', 'Message …'),
-				toolbar: [],
-			}
-			this.editorRichConfig = {
-				language: language,
-				placeholder: t('mail', 'Message …'),
-				toolbar: ['bold', 'italic', 'blockQuote'],
-			}
-
-			this.editorReady = true
-		},
-		loadEditorTranslations(language) {
-			if (language === 'en') {
-				// The default, nothing to fetch
-				return this.showEditor('en')
-			}
-
-			import(
-				/* webpackMode: "lazy-once" */
-				/* webpackPrefetch: true */
-				/* webpackPreload: true */
-				`@ckeditor/ckeditor5-build-balloon/build/translations/${language}`
-			)
-				.then(l => this.showEditor(language))
-				.catch(e => this.showEditor('en'))
-		},
 		recipientToRfc822(recipient) {
 			if (recipient.email === recipient.label) {
 				// From mailto or sender without proper label
@@ -366,9 +325,6 @@ export default {
 					this.savingDraft = false
 					return uid
 				})
-		},
-		onPlainTextEditorReady() {
-			this.bodyVal = htmlToText(this.bodyVal)
 		},
 		onInputChanged() {
 			this.saveDraftDebounced(this.getMessageData())
@@ -491,7 +447,7 @@ export default {
 }
 .composer-fields .multiselect,
 .composer-fields input,
-.composer-fields ckeditor {
+.composer-fields TextEditor {
 	flex-grow: 1;
 	max-width: none;
 	border: none;
