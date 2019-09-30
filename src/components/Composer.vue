@@ -239,7 +239,7 @@ export default {
 			autocompleteRecipients: this.to.concat(this.cc).concat(this.bcc),
 			newRecipients: [],
 			subjectVal: this.subject,
-			bodyVal: this.body,
+			bodyVal: this.isPlainText ? this.body.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2') : this.body,
 			attachments: [],
 			noReply: this.to.some(to => to.email.startsWith('noreply@') || to.email.startsWith('no-reply@')),
 			submitButtonTitle: t('mail', 'Send'),
@@ -291,7 +291,7 @@ export default {
 			this.selectedAlias = this.aliases[0]
 		}
 
-		this.bodyVal = this.bodyWithSignature(this.selectedAlias, this.body)
+		this.bodyVal = this.bodyWithSignature(this.selectedAlias, this.bodyVal)
 
 		this.loadEditorTranslations(getLanguage())
 	},
@@ -349,7 +349,7 @@ export default {
 					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
 					draftUID: uid,
 					subject: this.subjectVal,
-					body: this.bodyVal,
+					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
 					attachments: this.attachments,
 					folderId: this.replyTo ? this.replyTo.folderId : undefined,
 					messageId: this.replyTo ? this.replyTo.messageId : undefined,
