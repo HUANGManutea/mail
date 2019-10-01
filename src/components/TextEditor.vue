@@ -23,8 +23,8 @@
 	<ckeditor v-if="ready"
 			  :config="config"
 			  :editor="editor"
-			  v-bind:value="value"
-			  v-on:input="$emit('input', $event)"
+			  v-model="text"
+			  @input="onInput"
 			  @ready="onEditorReady"></ckeditor>
 </template>
 
@@ -64,6 +64,7 @@
 				config: {
 					plugins: this.html ? [
 						EssentialsPlugin,
+						ParagraphPlugin,
 						BoldPlugin,
 						ItalicPlugin,
 						LinkPlugin,
@@ -118,6 +119,12 @@
 			onEditorReady () {
 				this.bodyVal = htmlToText(this.bodyVal)
 			},
+			onInput () {
+				this.$emit(
+					'input',
+					this.html ? this.text : htmlToText(this.text)
+				)
+			}
 		},
 	}
 </script>

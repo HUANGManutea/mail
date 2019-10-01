@@ -97,7 +97,6 @@
 				v-model="bodyVal"
 				name="body"
 				class="message-body"
-				@ready="onPlainTextEditorReady"
 				@input="onInputChanged"
 			></TextEditor>
 			<TextEditor
@@ -157,7 +156,6 @@ import Vue from 'vue'
 
 import TextEditor from './TextEditor'
 import {findRecipient} from '../service/AutocompleteService'
-import {htmlToText} from '../util/HtmlHelper'
 import Loading from './Loading'
 import Logger from '../logger'
 import ComposerAttachments from './ComposerAttachments'
@@ -248,7 +246,6 @@ export default {
 			selectTo: this.to,
 			selectCc: this.cc,
 			selectBcc: this.bcc,
-			editorReady: false,
 			editorPlainText: this.isPlainText,
 		}
 	},
@@ -308,7 +305,7 @@ export default {
 					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
 					draftUID: uid,
 					subject: this.subjectVal,
-					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
+					body: this.bodyVal,
 					attachments: this.attachments,
 					folderId: this.replyTo ? this.replyTo.folderId : undefined,
 					messageId: this.replyTo ? this.replyTo.messageId : undefined,
