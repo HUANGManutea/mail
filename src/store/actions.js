@@ -40,7 +40,14 @@ import {
 	fetchAll as fetchAllAccounts,
 } from '../service/AccountService'
 import {fetchAll as fetchAllFolders, create as createFolder, markFolderRead} from '../service/FolderService'
-import {deleteMessage, fetchEnvelopes, fetchMessage, setEnvelopeFlag, syncEnvelopes} from '../service/MessageService'
+import {
+	deleteMessage,
+	fetchEnvelopes,
+	fetchMessage,
+	setEnvelopeFlag,
+	syncEnvelopes,
+	saveMessage,
+} from '../service/MessageService'
 import logger from '../logger'
 import {showNewMessagesNotification} from '../service/NotificationService'
 import {parseUid} from '../util/EnvelopeUidParser'
@@ -492,6 +499,22 @@ export default {
 					folder,
 					envelope,
 				})
+				throw err
+			})
+	},
+	saveMessage({getters, commit}, envelope) {
+		const folder = getters.getFolder(envelope.accountId, envelope.folderId)
+		return saveMessage(envelope.accountId, envelope.folderId, envelope.id)
+			.then(() => {
+				commit('saveMessage', {
+					accountId: envelope.accountId,
+					folder,
+					id: envelope.id,
+				})
+				console.log('message saved')
+			})
+			.catch(err => {
+				console.error('could not save message', err)
 				throw err
 			})
 	},

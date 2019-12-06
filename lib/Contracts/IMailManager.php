@@ -108,4 +108,12 @@ interface IMailManager {
 	 */
 	public function markFolderAsRead(Account $account, string $folderId): void;
 
+	/**
+	 * Fetch messages full text
+	 *
+	 * @param Account $account
+	 * @param string $mailbox
+	 * @param int[] $id
+	 */
+	public function fetchFullText(Account $account, string $mailbox, array $ids): array;
 }

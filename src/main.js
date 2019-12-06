@@ -63,6 +63,10 @@ store.commit('savePreference', {
 	key: 'external-avatars',
 	value: getPreferenceFromPage('external-avatars'),
 })
+store.commit('savePreference', {
+	key: 'backup-location',
+	value: getPreferenceFromPage('backup-location'),
+})
 
 const accounts = JSON.parse(atob(getPreferenceFromPage('serialized-accounts')))
 accounts.map(fixAccountId).forEach(account => {

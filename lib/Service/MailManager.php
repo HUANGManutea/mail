@@ -254,4 +254,10 @@ class MailManager implements IMailManager {
 		$this->messageMapper->markAllRead($client, $folderId);
 	}
 
+	public function fetchFullText(Account $account, string $mailbox, array $ids): array {
+		$client = $this->imapClientFactory->getClient($account);
+		$mailbox = $this->mailboxMapper->find($account, $mailbox);
+
+		return $this->messageMapper->fetchFullText($client, $mailbox->getMailbox(), $ids);
+	}
 }

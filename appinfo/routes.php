@@ -94,6 +94,11 @@ return [
 			'verb' => 'POST'
 		],
 		[
+			'name' => 'messages#saveToCloud',
+			'url' => '/api/accounts/{accountId}/folders/{folderId}/messages/{id}/save',
+			'verb' => 'POST'
+		],
+		[
 			'name' => 'avatars#url',
 			'url' => '/api/avatars/url/{email}',
 			'verb' => 'GET'

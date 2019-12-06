@@ -383,6 +383,38 @@ class MessagesController extends Controller {
 		return new JSONResponse();
 	}
 
+		/**
+	 * @NoAdminRequired
+	 * @TrapError
+	 *
+	 * @param int $accountId
+	 * @param int $id
+	 *
+	 * @return JSONResponse
+	 * @throws ServiceException
+	 */
+	public function saveToCloud(int $accountId, string $folderId, int $id): JSONResponse {
+		$this->logger->debug("saving message <$id> of folder <$folderId>, account <$accountId>");
+
+		try {
+			$account = $this->accountService->find($this->currentUserId, $accountId);
+		} catch (DoesNotExistException $e) {
+			return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+		}
+
+		$fullTexts = $this->mailManager->fetchFullText(
+			$account,
+			base64_decode($folderId),
+			[$id]
+		);
+		// array of one so retrieve first
+		if (count($fullTexts) > 0) {
+			
+		} else {
+			return new JSONResponse(null, Http::STATUS_NOT_FOUND);
+		}
+	}
+
 	/**
 	 * @param int $accountId
 	 * @param string $folderId

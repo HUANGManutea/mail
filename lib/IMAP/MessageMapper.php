@@ -214,4 +214,16 @@ class MessageMapper {
 		);
 	}
 
+	public function fetchFullText(Horde_Imap_Client_Base $client,
+							string $mailbox,
+							array $ids): array {
+		$query = new Horde_Imap_Client_Fetch_Query();
+		$query->fullText();
+		$fetchResults = iterator_to_array($client->fetch($mailbox, $query, [
+			'ids' => new Horde_Imap_Client_Ids($ids),
+		]), false);
+		return array_map(function (Horde_Imap_Client_Data_Fetch $fetchResult) {
+			return $fetchResult->getFullMsg();
+		}, $fetchResults);
+	}
 }

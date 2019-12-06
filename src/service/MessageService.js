@@ -95,3 +95,12 @@ export function deleteMessage(accountId, folderId, id) {
 
 	return HttpClient.delete(url).then(resp => resp.data)
 }
+
+export function saveMessage(accountId, folderId, id) {
+	const url = generateUrl('/apps/mail/api/accounts/{accountId}/folders/{folderId}/messages/{id}/save', {
+		accountId,
+		folderId,
+		id,
+	})
+	return HttpClient.post(url).then(resp => resp.data)
+}
