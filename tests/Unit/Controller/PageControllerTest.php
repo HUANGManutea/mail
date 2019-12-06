@@ -215,6 +215,7 @@ class PageControllerTest extends TestCase {
 			'external-avatars' => 'true',
 			'app-version' => '1.2.3',
 			'accounts' => base64_encode(json_encode($accountsJson)),
+			'backup-location' => null
 		]);
 		$csp = new ContentSecurityPolicy();
 		$csp->addAllowedFrameDomain('\'self\'');
