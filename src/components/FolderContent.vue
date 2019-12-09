@@ -4,13 +4,16 @@
 		<div id="app-content-wrapper">
 			<Loading v-if="loading" :hint="t('mail', 'Loading messages')" />
 			<template v-else>
-				<EnvelopeList
-					:account="account"
-					:folder="folder"
-					:envelopes="envelopes"
-					:search-query="searchQuery"
-					:show="!showMessage"
-				/>
+				<div>
+					<button :title="t('mail', 'Unsaved')" @click="filterUnsaved"></button>
+					<EnvelopeList
+						:account="account"
+						:folder="folder"
+						:envelopes="envelopes"
+						:search-query="searchQuery"
+						:show="!showMessage"
+					/>
+				</div>
 				<NewMessageDetail v-if="newMessage" />
 				<Message v-else-if="showMessage" />
 				<NoMessageSelected v-else-if="hasMessages && !isMobile" />
@@ -79,10 +82,14 @@ export default {
 			)
 		},
 		envelopes() {
-			if (this.searchQuery === undefined) {
-				return this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
+			if (this.showUnsaved) {
+				return this.$store.getters.getSavedEnvelopes(this.account.id, this.folder.id)
 			} else {
-				return this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
+				if (this.searchQuery === undefined) {
+					return this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
+				} else {
+					return this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
+				}
 			}
 		},
 	},
@@ -164,6 +171,7 @@ export default {
 		clearSearch() {
 			this.searchQuery = undefined
 		},
+		filterUnsaved() {},
 	},
 }
 </script>
