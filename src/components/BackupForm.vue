@@ -18,7 +18,6 @@
 <script>
 import {getFilePickerBuilder} from '@nextcloud/dialogs'
 import logger from '../logger'
-import {getFiltersByAccount} from '../service/FilterService'
 
 export default {
 	name: 'BackupForm',
@@ -59,9 +58,6 @@ export default {
 						this.loadingAvatarSettings = false
 					})
 			})
-		},
-		getFilters() {
-			return getFiltersByAccount(this.account.id).then(data => console.log(data))
 		},
 	},
 }

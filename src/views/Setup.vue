@@ -48,6 +48,9 @@ export default {
 			return this.$store
 				.dispatch('createAccount', data)
 				.then(account => {
+					return this.$store.dispatch('createExtAccount', account.id).then(() => account)
+				})
+				.then(account => {
 					logger.info('account successfully created, redirecting …')
 					this.$router.push({
 						name: 'home',

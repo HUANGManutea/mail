@@ -78,6 +78,9 @@ export const getters = {
 	getMessageByUid: state => uid => {
 		return state.messages[uid]
 	},
+	getFilters: state => accountId => {
+		return state.filters[accountId]
+	},
 }
 
 export default new Vuex.Store({
@@ -110,6 +113,7 @@ export default new Vuex.Store({
 		},
 		envelopes: {},
 		messages: {},
+		filters: {},
 		autocompleteEntries: [],
 	},
 	getters,

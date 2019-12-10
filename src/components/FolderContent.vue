@@ -122,6 +122,9 @@ export default {
 					query: this.searchQuery,
 				})
 				.then(() => {
+					this.$store.dispatch('getFilters', this.account.id)
+				})
+				.then(() => {
 					const envelopes = this.envelopes
 					Logger.debug('envelopes fetched', envelopes)
 

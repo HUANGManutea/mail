@@ -200,4 +200,8 @@ export default {
 	removeMessage(state, {accountId, folderId, id}) {
 		Vue.delete(state.messages, accountId + '-' + folderId + '-' + id)
 	},
+	setFilters(state, {accountId, filters}) {
+		console.log(filters)
+		Vue.set(state.filters, accountId, filters)
+	},
 }

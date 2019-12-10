@@ -48,6 +48,7 @@ import {
 	syncEnvelopes,
 	saveMessage,
 } from '../service/MessageService'
+import {getFilters, createBackupAccount} from '../service/BackupService'
 import logger from '../logger'
 import {showNewMessagesNotification} from '../service/NotificationService'
 import {parseUid} from '../util/EnvelopeUidParser'
@@ -73,17 +74,21 @@ export default {
 			return account
 		})
 	},
-	createAccount({commit}, config) {
-		return createAccount(config).then(account => {
-			logger.debug(`account ${account.id} created, fetching folders …`, account)
-			return fetchAllFolders(account.id)
-				.then(folders => {
-					account.folders = folders
-					commit('addAccount', account)
-				})
-				.then(() => console.info("new account's folders fetched"))
-				.then(() => account)
-		})
+	createAccount({commit, dispatch}, config) {
+		return createAccount(config)
+			.then(account => {
+				logger.debug(`account ${account.id} created, fetching folders …`, account)
+				return fetchAllFolders(account.id)
+					.then(folders => {
+						account.folders = folders
+						commit('addAccount', account)
+					})
+					.then(() => console.info("new account's folders fetched"))
+					.then(() => account)
+			})
+			.then(account => {
+				dispatch('createExtAccount', account.id).then(() => account)
+			})
 	},
 	updateAccount({commit}, config) {
 		return updateAccount(config).then(account => {
@@ -517,5 +522,13 @@ export default {
 				console.error('could not save message', err)
 				throw err
 			})
+	},
+	getFilters({getters, commit}, accountId) {
+		return getFilters(accountId).then(filters => {
+			commit('setFilters', {accountId: accountId, filters: filters})
+		})
+	},
+	createExtAccount({commit}, id) {
+		return createBackupAccount(id)
 	},
 }
