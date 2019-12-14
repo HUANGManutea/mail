@@ -5,7 +5,29 @@
 			<Loading v-if="loading" :hint="t('mail', 'Loading messages')" />
 			<template v-else>
 				<div>
-					<button :title="t('mail', 'Unsaved')" @click="filterUnsaved"></button>
+					<div v-if="account.id != 0" class="folder-content-header">
+						<Multiselect
+							id="filter"
+							v-model="selectedSaved"
+							:options="selectableSaved"
+							track-by="id"
+							label="label"
+							:multiple="false"
+							:placeholder="t('mail', 'Select Saved')"
+						/>
+						<Multiselect
+							id="filter"
+							v-model="selectedFilters"
+							:options="selectableFilters"
+							track-by="id"
+							label="text"
+							:multiple="true"
+							:placeholder="t('mail', 'Select Filter')"
+							:show-no-options="true"
+						>
+							<span slot="noOptions">{{ t('mail', 'No filter available') }}</span>
+						</Multiselect>
+					</div>
 					<EnvelopeList
 						:account="account"
 						:folder="folder"
@@ -25,6 +47,7 @@
 <script>
 import AppContent from '@nextcloud/vue/dist/Components/AppContent'
 import isMobile from '@nextcloud/vue/dist/Mixins/isMobile'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 
 import AppDetailsToggle from './AppDetailsToggle'
 import EnvelopeList from './EnvelopeList'
@@ -33,6 +56,8 @@ import Logger from '../logger'
 import Message from './Message'
 import NewMessageDetail from './NewMessageDetail'
 import NoMessageSelected from './NoMessageSelected'
+
+import * as lodash from 'lodash'
 
 export default {
 	name: 'FolderContent',
@@ -44,6 +69,7 @@ export default {
 		Message,
 		NewMessageDetail,
 		NoMessageSelected,
+		Multiselect,
 	},
 	mixins: [isMobile],
 	props: {
@@ -61,6 +87,12 @@ export default {
 			loading: true,
 			searchQuery: undefined,
 			alive: false,
+			selectedFilters: null,
+			selectedSaved: null,
+			selectableSaved: [
+				{id: 0, label: t('mail', 'Saved'), value: true},
+				{id: 1, label: t('mail', 'Unsaved'), value: false},
+			],
 		}
 	},
 	computed: {
@@ -82,15 +114,57 @@ export default {
 			)
 		},
 		envelopes() {
-			if (this.showUnsaved) {
-				return this.$store.getters.getSavedEnvelopes(this.account.id, this.folder.id)
-			} else {
-				if (this.searchQuery === undefined) {
-					return this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
+			let mails = []
+			let allFilters = []
+			// add filter on saved only if saved/unsaved filter is selected
+			if (this.selectedSaved != null) {
+				if (this.selectedSaved.value) {
+					// add filter on unsavedMail
+					allFilters.push(mail => mail.saved)
 				} else {
-					return this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
+					// add filter on savedMail
+					allFilters.push(mail => !mail.saved)
 				}
 			}
+			// add filter on subject
+			if (!lodash.isEmpty(this.selectedFilters)) {
+				allFilters.push(envelope => {
+					let filtered = false
+					this.selectedFilters.forEach(filter => {
+						filtered = filtered || envelope.subject.includes(filter.text)
+					})
+					return filtered
+				})
+			}
+
+			if (this.searchQuery === undefined) {
+				mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
+			} else {
+				mails = this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
+			}
+			mails = mails.map(mail => {
+				const existingBackupMail = this.$store.getters.getBackupMail(this.account.id, this.folder.id, mail.id)
+
+				if (existingBackupMail != null) {
+					return {
+						...mail,
+						saved: !!+existingBackupMail.saved,
+					}
+				} else {
+					return mail
+				}
+			})
+
+			// apply filters
+			let filteredMails = mails
+			allFilters.forEach(predicate => {
+				filteredMails = filteredMails.filter(predicate)
+			})
+			console.log(filteredMails)
+			return filteredMails
+		},
+		selectableFilters() {
+			return this.$store.getters.getFilters(this.account.id)
 		},
 	},
 	watch: {
@@ -122,7 +196,16 @@ export default {
 					query: this.searchQuery,
 				})
 				.then(() => {
-					this.$store.dispatch('getFilters', this.account.id)
+					return this.$store.dispatch('postBackupEnvelopes', {
+						folderId: this.folder.id,
+						envelopes: this.envelopes,
+					})
+				})
+				.then(() => {
+					return this.$store.dispatch('getBackupMails', {
+						accountId: this.account.id,
+						folderId: this.folder.id,
+					})
 				})
 				.then(() => {
 					const envelopes = this.envelopes
@@ -146,6 +229,7 @@ export default {
 						})
 					}
 				})
+			this.$store.dispatch('getFilters', this.account.id)
 		},
 		hideMessage() {
 			this.$router.replace({
@@ -174,7 +258,12 @@ export default {
 		clearSearch() {
 			this.searchQuery = undefined
 		},
-		filterUnsaved() {},
 	},
 }
 </script>
+<style lang="scss">
+.folder-content-header {
+	display: flex;
+	flex-direction: row;
+}
+</style>

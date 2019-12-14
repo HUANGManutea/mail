@@ -201,7 +201,10 @@ export default {
 		Vue.delete(state.messages, accountId + '-' + folderId + '-' + id)
 	},
 	setFilters(state, {accountId, filters}) {
-		console.log(filters)
 		Vue.set(state.filters, accountId, filters)
+	},
+	addBackupMail(state, {accountId, folderId, message}) {
+		const uid = accountId + '-' + folderId + '-' + message.id
+		Vue.set(state.backupMails, uid, message)
 	},
 }

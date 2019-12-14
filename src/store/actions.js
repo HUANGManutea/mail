@@ -48,7 +48,15 @@ import {
 	syncEnvelopes,
 	saveMessage,
 } from '../service/MessageService'
-import {getFilters, createBackupAccount, deleteBackupAccount} from '../service/BackupService'
+import {
+	getFilters,
+	createBackupAccount,
+	deleteBackupAccount,
+	createBackupFolders,
+	deleteBackupFolders,
+	postBackupEnvelopes,
+	getBackupMails,
+} from '../service/BackupService'
 import logger from '../logger'
 import {showNewMessagesNotification} from '../service/NotificationService'
 import {parseUid} from '../util/EnvelopeUidParser'
@@ -524,10 +532,28 @@ export default {
 			commit('setFilters', {accountId: accountId, filters: filters})
 		})
 	},
-	createBackupAccount({commit}, {id, email}) {
-		return createBackupAccount({id: id, email: email})
+	createBackupAccount({commit}, {accountId, email}) {
+		return createBackupAccount({accountId: accountId, email: email})
 	},
-	deleteBackupAccount({commit}, id) {
-		return deleteBackupAccount(id)
+	deleteBackupAccount({commit}, accountId) {
+		return deleteBackupAccount(accountId)
+	},
+	createBackupFolders({commit, getters}, accountId) {
+		const folderIds = getters.getFolders(accountId).map(f => f.id)
+		console.log(folderIds)
+		return createBackupFolders({accountId: accountId, folderIds: folderIds})
+	},
+	deleteBackupFolders({commit}, accountId) {
+		return deleteBackupFolders(accountId)
+	},
+	postBackupEnvelopes({commit}, {accountId, folderId, envelopes}) {
+		return postBackupEnvelopes(envelopes)
+	},
+	getBackupMails({commit}, {accountId, folderId}) {
+		return getBackupMails({accountId: accountId, mailboxId: folderId}).then(backupMails => {
+			backupMails.forEach(mail => {
+				commit('addBackupMail', {accountId: accountId, folderId: folderId, message: mail})
+			})
+		})
 	},
 }

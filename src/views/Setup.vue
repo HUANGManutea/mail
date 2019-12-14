@@ -48,14 +48,15 @@ export default {
 			return this.$store
 				.dispatch('createAccount', data)
 				.then(account => {
-					console.log('blabla')
-					console.log(account)
 					return this.$store
 						.dispatch('createBackupAccount', {
-							id: account.id,
+							accountId: account.id,
 							email: account.emailAddress,
 						})
 						.then(() => account)
+				})
+				.then(account => {
+					return this.$store.dispatch('createBackupFolders', account.id).then(() => account)
 				})
 				.then(account => {
 					logger.info('account successfully created, redirecting …')

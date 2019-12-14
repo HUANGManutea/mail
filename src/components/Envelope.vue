@@ -24,8 +24,13 @@
 			</span>
 			{{ data.subject }}
 		</div>
-		<div class="app-content-list-item-details date">
-			<Moment :timestamp="data.dateInt" />
+		<div class="app-content-list-item-details">
+			<div v-if="data.saved != null" class="saved-state" :class="data.saved ? 'saved' : 'unsaved'">
+				<p>{{ data.saved ? t('mail', 'saved') : t('mail', 'unsaved') }}</p>
+			</div>
+			<div class="date">
+				<Moment :timestamp="data.dateInt" />
+			</div>
 		</div>
 		<Actions class="app-content-list-item-menu" menu-align="right">
 			<ActionButton icon="icon-save" @click.prevent="onSave">{{ t('mail', 'Save') }}</ActionButton>
@@ -189,5 +194,23 @@ export default {
 
 .app-content-list-item-menu {
 	margin-right: -2px;
+}
+
+.app-content-list-item-details {
+	display: flex;
+	flex-direction: row;
+}
+
+.saved-state {
+	text-align: end;
+	margin-right: 5px;
+}
+
+.saved {
+	color: green;
+}
+
+.unsaved {
+	color: orange;
 }
 </style>

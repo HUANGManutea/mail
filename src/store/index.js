@@ -81,6 +81,9 @@ export const getters = {
 	getFilters: state => accountId => {
 		return state.filters[accountId]
 	},
+	getBackupMail: state => (accountId, folderId, id) => {
+		return state.backupMails[accountId + '-' + folderId + '-' + id]
+	},
 }
 
 export default new Vuex.Store({
@@ -114,6 +117,7 @@ export default new Vuex.Store({
 		envelopes: {},
 		messages: {},
 		filters: {},
+		backupMails: {},
 		autocompleteEntries: [],
 	},
 	getters,
