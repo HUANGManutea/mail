@@ -546,7 +546,7 @@ export default {
 	deleteBackupFolders({commit}, accountId) {
 		return deleteBackupFolders(accountId)
 	},
-	postBackupEnvelopes({commit}, {accountId, folderId, envelopes}) {
+	postBackupEnvelopes({commit}, envelopes) {
 		return postBackupEnvelopes(envelopes)
 	},
 	getBackupMails({commit}, {accountId, folderId}) {

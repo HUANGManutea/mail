@@ -160,7 +160,6 @@ export default {
 			allFilters.forEach(predicate => {
 				filteredMails = filteredMails.filter(predicate)
 			})
-			console.log(filteredMails)
 			return filteredMails
 		},
 		selectableFilters() {
@@ -196,10 +195,7 @@ export default {
 					query: this.searchQuery,
 				})
 				.then(() => {
-					return this.$store.dispatch('postBackupEnvelopes', {
-						folderId: this.folder.id,
-						envelopes: this.envelopes,
-					})
+					return this.$store.dispatch('postBackupEnvelopes', this.envelopes)
 				})
 				.then(() => {
 					return this.$store.dispatch('getBackupMails', {
