@@ -145,7 +145,6 @@ export default {
 			this.$store.dispatch('deleteMessage', this.data)
 		},
 		onSave(e) {
-			console.log(this.data)
 			this.$store.dispatch('saveMessage', this.data)
 		},
 	},

@@ -554,6 +554,7 @@ export default {
 			backupMails.forEach(mail => {
 				commit('addBackupMail', {accountId: accountId, folderId: folderId, message: mail})
 			})
+			return backupMails
 		})
 	},
 }

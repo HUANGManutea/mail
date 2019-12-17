@@ -144,7 +144,6 @@ export default {
 			}
 			mails = mails.map(mail => {
 				const existingBackupMail = this.$store.getters.getBackupMail(this.account.id, this.folder.id, mail.id)
-
 				if (existingBackupMail != null) {
 					return {
 						...mail,

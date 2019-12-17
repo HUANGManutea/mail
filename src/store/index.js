@@ -84,6 +84,9 @@ export const getters = {
 	getBackupMail: state => (accountId, folderId, id) => {
 		return state.backupMails[accountId + '-' + folderId + '-' + id]
 	},
+	getBackupMails: state => () => {
+		return state.backupMails
+	},
 }
 
 export default new Vuex.Store({

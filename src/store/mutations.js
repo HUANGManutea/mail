@@ -204,7 +204,7 @@ export default {
 		Vue.set(state.filters, accountId, filters)
 	},
 	addBackupMail(state, {accountId, folderId, message}) {
-		const uid = accountId + '-' + folderId + '-' + message.id
+		const uid = accountId + '-' + folderId + '-' + message.uid
 		Vue.set(state.backupMails, uid, message)
 	},
 }
