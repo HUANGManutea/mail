@@ -94,8 +94,8 @@ return [
 			'verb' => 'POST'
 		],
 		[
-			'name' => 'messages#saveToCloud',
-			'url' => '/api/accounts/{accountId}/folders/{folderId}/messages/{id}/save',
+			'name' => 'messages#getFullText',
+			'url' => '/api/accounts/{accountId}/folders/{folderId}/messages/{id}/getFullText',
 			'verb' => 'POST'
 		],
 		[

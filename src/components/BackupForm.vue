@@ -53,10 +53,10 @@ export default {
 						key: 'backup-location',
 						value: dest,
 					})
-					.catch(error => logger.error('could not save preferences', {error}))
 					.then(() => {
 						this.loadingAvatarSettings = false
 					})
+					.catch(error => logger.error('could not save preferences', {error}))
 			})
 		},
 	},

@@ -46,7 +46,7 @@ import {
 	fetchMessage,
 	setEnvelopeFlag,
 	syncEnvelopes,
-	saveMessage,
+	getFullText,
 } from '../service/MessageService'
 import {
 	getFilters,
@@ -56,6 +56,7 @@ import {
 	deleteBackupFolders,
 	postBackupEnvelopes,
 	getBackupMails,
+	writeBackupMail,
 } from '../service/BackupService'
 import logger from '../logger'
 import {showNewMessagesNotification} from '../service/NotificationService'
@@ -511,22 +512,6 @@ export default {
 				throw err
 			})
 	},
-	saveMessage({getters, commit}, envelope) {
-		const folder = getters.getFolder(envelope.accountId, envelope.folderId)
-		return saveMessage(envelope.accountId, envelope.folderId, envelope.id)
-			.then(() => {
-				commit('saveMessage', {
-					accountId: envelope.accountId,
-					folder,
-					id: envelope.id,
-				})
-				console.log('message saved')
-			})
-			.catch(err => {
-				console.error('could not save message', err)
-				throw err
-			})
-	},
 	getFilters({getters, commit}, accountId) {
 		return getFilters(accountId).then(filters => {
 			commit('setFilters', {accountId: accountId, filters: filters})
@@ -556,5 +541,25 @@ export default {
 			})
 			return backupMails
 		})
+	},
+	backupMessage({getters, commit, dispatch}, envelope) {
+		const folder = getters.getFolder(envelope.accountId, envelope.folderId)
+		return getFullText(envelope.accountId, envelope.folderId, envelope.id)
+			.then(content => {
+				return dispatch('writeBackupMessage', {
+					accountId: envelope.accountId,
+					mailboxId: envelope.folderId,
+					id: envelope.id,
+					content: content,
+				})
+			})
+			.then(() => console.log('message saved'))
+			.catch(err => {
+				console.error('could not save message', err)
+				throw err
+			})
+	},
+	writeBackupMessage({commit}, {accountId, mailboxId, id, content}) {
+		return writeBackupMail({accountId: accountId, mailboxId: mailboxId, id: id, content: content})
 	},
 }

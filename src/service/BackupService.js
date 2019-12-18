@@ -30,8 +30,8 @@ export const deleteBackupFolders = accountId => {
 
 // filters
 export const getFilters = accountId => {
-	const url = generateUrl('/apps/backupmail/api/filter/getByAccount')
-	return Axios.post(url, {accountId: accountId})
+	const url = generateUrl('/apps/backupmail/api/filter/byAccount/{accountId}', {accountId: accountId})
+	return Axios.get(url)
 		.then(resp => resp.data)
 		.then(filters => filters.map(filterToText))
 }
@@ -47,4 +47,15 @@ export const getBackupMails = ({accountId, mailboxId}) => {
 		mailboxId: mailboxId,
 	})
 	return Axios.get(url).then(resp => resp.data)
+}
+
+// backup
+export const writeBackupMail = ({accountId, mailboxId, id, content}) => {
+	const url = generateUrl('/apps/backupmail/api/mail/backup')
+	return Axios.post(url, {
+		accountId: accountId,
+		mailboxId: mailboxId,
+		id: id,
+		content: content,
+	}).then(resp => resp.data)
 }
