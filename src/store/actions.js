@@ -553,7 +553,14 @@ export default {
 					content: content,
 				})
 			})
-			.then(() => console.log('message saved'))
+			.then(mail => {
+				commit('updateBackupMail', {
+					accountId: envelope.accountId,
+					folderId: envelope.folderId,
+					message: mail,
+				})
+				console.log('message saved')
+			})
 			.catch(err => {
 				console.error('could not save message', err)
 				throw err

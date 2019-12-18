@@ -28,7 +28,6 @@
 					/>
 				</div>
 			</div>
-			<BackupForm :account="account" />
 		</AppContent>
 	</Content>
 </template>
@@ -38,7 +37,6 @@ import AppContent from '@nextcloud/vue/dist/Components/AppContent'
 import Content from '@nextcloud/vue/dist/Components/Content'
 
 import AccountForm from '../components/AccountForm'
-import BackupForm from '../components/BackupForm'
 import EditorSettings from '../components/EditorSettings'
 import Logger from '../logger'
 import Navigation from '../components/Navigation'
@@ -48,7 +46,6 @@ export default {
 	name: 'AccountSettings',
 	components: {
 		AccountForm,
-		BackupForm,
 		AppContent,
 		Content,
 		EditorSettings,

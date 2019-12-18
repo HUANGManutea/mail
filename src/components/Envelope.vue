@@ -33,7 +33,9 @@
 			</div>
 		</div>
 		<Actions class="app-content-list-item-menu" menu-align="right">
-			<ActionButton icon="icon-save" @click.prevent="onBackup">{{ t('mail', 'Backup') }}</ActionButton>
+			<ActionButton :icon="backuping ? 'icon-loading-small' : 'icon-upload'" @click.prevent="onBackup">
+				{{ t('mail', 'Backup') }}
+			</ActionButton>
 			<ActionButton icon="icon-mail" @click.prevent="onToggleSeen">{{
 				data.flags.unseen ? t('mail', 'Mark read') : t('mail', 'Mark unread')
 			}}</ActionButton>
@@ -67,6 +69,11 @@ export default {
 			type: Object,
 			required: true,
 		},
+	},
+	data: function() {
+		return {
+			backuping: false,
+		}
 	},
 	computed: {
 		accountColor() {
@@ -145,7 +152,10 @@ export default {
 			this.$store.dispatch('deleteMessage', this.data)
 		},
 		onBackup(e) {
-			this.$store.dispatch('backupMessage', this.data)
+			this.backuping = true
+			this.$store.dispatch('backupMessage', this.data).then(() => {
+				this.backuping = false
+			})
 		},
 	},
 }
