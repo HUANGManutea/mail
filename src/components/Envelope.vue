@@ -153,9 +153,14 @@ export default {
 		},
 		onBackup(e) {
 			this.backuping = true
-			this.$store.dispatch('backupMessage', this.data).then(() => {
-				this.backuping = false
-			})
+			this.$store
+				.dispatch('backupMessage', this.data)
+				.then(() => {
+					this.backuping = false
+				})
+				.catch(() => {
+					this.backuping = false
+				})
 		},
 	},
 }

@@ -525,7 +525,6 @@ export default {
 	},
 	createBackupFolders({commit, getters}, accountId) {
 		const folderIds = getters.getFolders(accountId).map(f => f.id)
-		console.log(folderIds)
 		return createBackupFolders({accountId: accountId, folderIds: folderIds})
 	},
 	deleteBackupFolders({commit}, accountId) {
