@@ -515,6 +515,7 @@ export default {
 	getFilters({getters, commit}, accountId) {
 		return getFilters(accountId).then(filters => {
 			commit('setFilters', {accountId: accountId, filters: filters})
+			return getters.getFilters(accountId)
 		})
 	},
 	createBackupAccount({commit}, {accountId, email}) {
@@ -541,7 +542,7 @@ export default {
 			return backupMails
 		})
 	},
-	backupMessage({getters, commit, dispatch}, envelope) {
+	backupMessage({getters, commit, dispatch}, {envelope, caseNumber, step}) {
 		const folder = getters.getFolder(envelope.accountId, envelope.folderId)
 		return getFullText(envelope.accountId, envelope.folderId, envelope.id)
 			.then(content => {
@@ -550,6 +551,8 @@ export default {
 					mailboxId: envelope.folderId,
 					id: envelope.id,
 					content: content,
+					caseNumber: caseNumber,
+					step: step,
 				})
 			})
 			.then(mail => {
@@ -565,7 +568,14 @@ export default {
 				throw err
 			})
 	},
-	writeBackupMessage({commit}, {accountId, mailboxId, id, content}) {
-		return writeBackupMail({accountId: accountId, mailboxId: mailboxId, id: id, content: content})
+	writeBackupMessage({commit}, {accountId, mailboxId, id, content, caseNumber, step}) {
+		return writeBackupMail({
+			accountId: accountId,
+			mailboxId: mailboxId,
+			id: id,
+			content: content,
+			caseNumber: caseNumber,
+			step: step,
+		})
 	},
 }

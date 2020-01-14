@@ -50,12 +50,14 @@ export const getBackupMails = ({accountId, mailboxId}) => {
 }
 
 // backup
-export const writeBackupMail = ({accountId, mailboxId, id, content}) => {
+export const writeBackupMail = ({accountId, mailboxId, id, content, caseNumber, step}) => {
 	const url = generateUrl('/apps/backupmail/api/mail/backup')
 	return Axios.post(url, {
 		accountId: accountId,
 		mailboxId: mailboxId,
 		id: id,
 		content: content,
+		caseNumber: caseNumber,
+		step: step,
 	}).then(resp => resp.data)
 }

@@ -25,6 +25,7 @@
  */
 style('mail', 'mail');
 style('mail', 'mobile');
+style('mail', 'backupmail');
 script('mail', 'mail');
 ?>
 

@@ -7,7 +7,6 @@
 				<div>
 					<div v-if="account.id != 0" class="folder-content-header">
 						<Multiselect
-							id="filter"
 							v-model="selectedSaved"
 							:options="selectableSaved"
 							track-by="id"
@@ -16,7 +15,6 @@
 							:placeholder="t('mail', 'Select Saved')"
 						/>
 						<Multiselect
-							id="filter"
 							v-model="selectedFilters"
 							:options="selectableFilters"
 							track-by="id"

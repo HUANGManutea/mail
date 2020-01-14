@@ -1,7 +1,7 @@
 export const filterToText = filter => {
 	let text = ''
-	if (filter.clientTag != null) {
-		text += filter.clientTag
+	if (filter.caseNumber != null) {
+		text += filter.caseNumber
 	}
 	if (filter.step != null && filter.step !== '') {
 		text += '.'

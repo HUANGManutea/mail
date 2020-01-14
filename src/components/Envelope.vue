@@ -33,7 +33,7 @@
 			</div>
 		</div>
 		<Actions class="app-content-list-item-menu" menu-align="right">
-			<ActionButton :icon="backuping ? 'icon-loading-small' : 'icon-upload'" @click.prevent="onBackup">
+			<ActionButton :icon="backuping ? 'icon-loading-small' : 'icon-upload'" @click.prevent="onShowBackupModal">
 				{{ t('mail', 'Backup') }}
 			</ActionButton>
 			<ActionButton icon="icon-mail" @click.prevent="onToggleSeen">{{
@@ -41,12 +41,16 @@
 			}}</ActionButton>
 			<ActionButton icon="icon-delete" @click.prevent="onDelete">{{ t('mail', 'Delete') }}</ActionButton>
 		</Actions>
+		<template v-if="backuping">
+			<BackupModal :envelope="data" :backuping="backuping" @closeBackupModal="closeBackupModal" />
+		</template>
 	</router-link>
 </template>
 
 <script>
 import Actions from '@nextcloud/vue/dist/Components/Actions'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import BackupModal from './backup/BackupModal'
 import Moment from './Moment'
 
 import Avatar from './Avatar'
@@ -59,6 +63,7 @@ export default {
 		ActionButton,
 		Avatar,
 		Moment,
+		BackupModal,
 	},
 	props: {
 		data: {
@@ -151,16 +156,11 @@ export default {
 			this.$emit('delete', this.data)
 			this.$store.dispatch('deleteMessage', this.data)
 		},
-		onBackup(e) {
+		onShowBackupModal() {
 			this.backuping = true
-			this.$store
-				.dispatch('backupMessage', this.data)
-				.then(() => {
-					this.backuping = false
-				})
-				.catch(() => {
-					this.backuping = false
-				})
+		},
+		closeBackupModal(e) {
+			this.backuping = false
 		},
 	},
 }
