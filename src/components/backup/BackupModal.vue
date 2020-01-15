@@ -54,6 +54,7 @@ export default {
 			canCreate: false,
 			caseNumber: '',
 			step: '',
+			accountId: null,
 		}
 	},
 	mounted() {
@@ -69,6 +70,7 @@ export default {
 				const matchValues = this.envelope.subject.match(pattern)
 				this.caseNumber = matchValues[1]
 				this.step = matchValues[2]
+				this.accountId = this.envelope.accountId
 			}
 		},
 		reset() {
@@ -105,8 +107,12 @@ export default {
 			})
 		},
 		navigateCreateCase() {
-			const route = backup.Routing.baseUrl() + backup.Routing.routes.newCase
+			const route =
+				backup.Routing.baseUrl() +
+				backup.Routing.routes.newCase +
+				`/${this.accountId}/${this.caseNumber}/${this.step}`
 			window.open(route, '_blank')
+			this.filterTested = false
 		},
 	},
 }
