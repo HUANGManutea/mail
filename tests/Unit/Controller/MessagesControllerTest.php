@@ -36,6 +36,7 @@ use OCA\Mail\Mailbox;
 use OCA\Mail\Model\IMAPMessage;
 use OCA\Mail\Model\Message;
 use OCA\Mail\Service\AccountService;
+use OCA\Mail\Service\ItineraryService;
 use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -66,6 +67,9 @@ class MessagesControllerTest extends TestCase {
 
 	/** @var MockObject|IMailSearch */
 	private $mailSearch;
+
+	/** @var ItineraryService|MockObject */
+	private $itineraryService;
 
 	/** @var string */
 	private $userId;
@@ -111,6 +115,7 @@ class MessagesControllerTest extends TestCase {
 		$this->accountService = $this->createMock(AccountService::class);
 		$this->mailManager = $this->createMock(IMailManager::class);
 		$this->mailSearch = $this->createMock(IMailSearch::class);
+		$this->itineraryService = $this->createMock(ItineraryService::class);
 		$this->userId = 'john';
 		$this->userFolder = $this->createMock(Folder::class);
 		$this->request = $this->createMock(Request::class);
@@ -134,6 +139,7 @@ class MessagesControllerTest extends TestCase {
 			$this->accountService,
 			$this->mailManager,
 			$this->mailSearch,
+			$this->itineraryService,
 			$this->userId,
 			$this->userFolder,
 			$this->logger,
@@ -247,7 +253,7 @@ class MessagesControllerTest extends TestCase {
 		$accountId = 17;
 		$folderId = base64_encode('my folder');
 		$messageId = 123;
-		$attachmentId = 3;
+		$attachmentId = '2.2';
 		$targetPath = 'Downloads';
 
 		$this->accountService->expects($this->once())
@@ -295,7 +301,7 @@ class MessagesControllerTest extends TestCase {
 		$accountId = 17;
 		$folderId = base64_encode('my folder');
 		$messageId = 123;
-		$attachmentId = 3;
+		$attachmentId = '0';
 		$targetPath = 'Downloads';
 
 		$this->accountService->expects($this->once())
@@ -343,8 +349,13 @@ class MessagesControllerTest extends TestCase {
 			->will($this->returnValue('abcdefg'));
 
 		$expected = new JSONResponse();
-		$response = $this->controller->saveAttachment($accountId, $folderId,
-			$messageId, 0, $targetPath);
+		$response = $this->controller->saveAttachment(
+			$accountId,
+			$folderId,
+			$messageId,
+			$attachmentId,
+			$targetPath
+		);
 
 		$this->assertEquals($expected, $response);
 	}

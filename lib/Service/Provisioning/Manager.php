@@ -86,10 +86,6 @@ class Manager {
 			// Fine, then we create a new one
 			$new = new MailAccount();
 			$new->setUserId($user->getUID());
-			if ($user->getDisplayName() !== $user->getUID()) {
-				// Only set if it's something meaningful
-				$new->setName($user->getDisplayName());
-			}
 			$new->setProvisioned(true);
 
 			$this->mailAccountMapper->insert(
@@ -125,6 +121,10 @@ class Manager {
 
 	private function updateAccount(IUser $user, MailAccount $account, Config $config): MailAccount {
 		$account->setEmail($config->buildEmail($user));
+		if ($user->getDisplayName() !== $user->getUID()) {
+			// Only set if it's something meaningful
+			$account->setName($user->getDisplayName());
+		}
 		$account->setInboundUser($config->buildImapUser($user));
 		$account->setInboundHost($config->getImapHost());
 		$account->setInboundPort($config->getImapPort());
@@ -154,6 +154,7 @@ class Manager {
 		if (!isset($data['smtpUser'])) {
 			$data['smtpUser'] = $data['email'];
 		}
+		$data['active'] = true;
 
 		return $this->configMapper->save(new Config($data));
 	}
@@ -162,9 +163,9 @@ class Manager {
 		try {
 			$account = $this->mailAccountMapper->findProvisionedAccount($user);
 
-			if ($account->getInboundPassword() !== null
+			if (!empty($account->getInboundPassword())
 				&& $this->crypto->decrypt($account->getInboundPassword()) === $password
-				&& $account->getOutboundPassword() !== null
+				&& !empty($account->getOutboundPassword())
 				&& $this->crypto->decrypt($account->getOutboundPassword()) === $password) {
 				$this->logger->debug('Password of provisioned account is up to date');
 				return;

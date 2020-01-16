@@ -29,7 +29,6 @@ declare(strict_types=1);
 
 namespace OCA\Mail\Model;
 
-use Closure;
 use Exception;
 use Horde_Imap_Client;
 use Horde_Imap_Client_Data_Envelope;
@@ -48,7 +47,7 @@ use OCA\Mail\Service\Html;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Files\File;
 use OCP\Files\SimpleFS\ISimpleFile;
-use OCP\Util;
+use function base64_encode;
 use function mb_convert_encoding;
 
 class IMAPMessage implements IMessage, JsonSerializable {
@@ -342,7 +341,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 				return;
 			}
 			$this->attachments[] = [
-				'id' => (int) $p->getMimeId(),
+				'id' => $p->getMimeId(),
 				'messageId' => $this->messageId,
 				'fileName' => $filename,
 				'mime' => $p->getType(),
@@ -412,6 +411,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getUid(),
+			'messageId' => $this->getMessageId(),
 			'from' => $this->getFrom()->jsonSerialize(),
 			'to' => $this->getTo()->jsonSerialize(),
 			'cc' => $this->getCC()->jsonSerialize(),
@@ -419,6 +419,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 			'subject' => $this->getSubject(),
 			'dateInt' => $this->getSentDate()->getTimestamp(),
 			'flags' => $this->getFlags(),
+			'hasHtmlBody' => $this->hasHtmlMessage,
 		];
 	}
 
@@ -431,7 +432,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	public function getHtmlBody(int $accountId, string $folderId, int $messageId): string {
 		return $this->htmlService->sanitizeHtmlMailBody($this->htmlMessage, [
 			'accountId' => $accountId,
-			'folderId' => $folderId,
+			'folderId' => base64_encode($folderId),
 			'messageId' => $messageId,
 		], function ($cid) {
 			$match = array_filter($this->attachments,

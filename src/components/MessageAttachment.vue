@@ -73,7 +73,7 @@ export default {
 	mixins: [onClickOutside],
 	props: {
 		id: {
-			type: Number,
+			type: String,
 			required: true,
 		},
 		fileName: {
@@ -216,6 +216,10 @@ export default {
 	display: block;
 	max-width: 100%;
 	max-height: 120px;
+	cursor: pointer;
+}
+.mail-attached-image:hover {
+	opacity: 0.8;
 }
 
 .attachment-save-to-cloud,

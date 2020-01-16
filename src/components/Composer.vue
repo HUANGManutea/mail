@@ -109,6 +109,7 @@
 				name="body"
 				class="message-body"
 				:placeholder="t('mail', 'Write message …')"
+				:focus="isReply"
 				@input="onInputChanged"
 			></TextEditor>
 			<TextEditor
@@ -119,6 +120,7 @@
 				name="body"
 				class="message-body"
 				:placeholder="t('mail', 'Write message …')"
+				:focus="isReply"
 				@input="onInputChanged"
 			></TextEditor>
 		</div>
@@ -215,10 +217,6 @@ export default {
 		TextEditor,
 	},
 	props: {
-		replyTo: {
-			type: Object,
-			default: () => undefined,
-		},
 		fromAccount: {
 			type: Number,
 			default: () => undefined,
@@ -283,13 +281,13 @@ export default {
 	},
 	computed: {
 		aliases() {
-			return this.$store.getters.getAccounts().filter(a => !a.isUnified)
+			return this.$store.getters.accounts.filter(a => !a.isUnified)
 		},
 		selectableRecipients() {
 			return this.newRecipients.concat(this.autocompleteRecipients)
 		},
 		isReply() {
-			return this.replyTo !== undefined
+			return this.to.length > 0
 		},
 		noSubject() {
 			return this.subjectVal === '' && this.bodyVal !== ''

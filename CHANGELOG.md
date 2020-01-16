@@ -1,6 +1,49 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.21.1 - 2020-01-07
+### Changed
+- New and updated translations
+- Updated dependencies
+### Fixed
+- Move delete action down in folder actions menu
+- Fix image hover effect on attachment
+- Encoding of mailbox in URL
+- Account selected when replying to message in unified inbox
+
+## 0.21.0 - 2019-12-17
+### Added
+- Ability to move accounts up and down in the sidebar
+### Changed
+- New and updated translations
+- Updated dependencies
+### Fixed
+- Default enable state for imported provisioned account
+- Don't provision accounts when config is disabled
+- Caching of Favicon library to a local app directory
+
+## 0.20.3 - 2019-12-16
+### Changed
+- New and updated translations
+### Fixed
+- Attachment handling of non-integer MIME IDs like `2.2`
+- Php warning of `each` usage in a Horde library
+
+## 0.20.2 - 2019-12-13
+### Changed
+- New and updated translations
+### Fixed
+- JavaScript vulnerability in `serialize-javascript` dependency
+
+## 0.20.1 - 2019-12-09
+### Added
+- occ command to diagnose an account (# of mailboxes, messages; IMAP capabilities)
+### Changed
+- New and updated translations
+- Updated dependencies
+### Fixed
+- Provisioned account update password check when password is set to empty string
+
 ## 0.20.0 - 2019-12-04
 ### Added
 - Admin settings UI to configure provisioned accounts (formerly known as "default account") -> provisioned accounts are now stored in the database
@@ -92,7 +135,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Wrong navigation to deleted message
 - Wrong navigation to next/prev message of deleted message
-- Non-translatable "forward" button 
+- Non-translatable "forward" button
 
 ## 0.15.4 - 2019-08-26
 ### Fixed
@@ -318,7 +361,7 @@ All notable changes to this project will be documented in this file.
 ## 0.7.0 – 2017-08-24
 ### Added
 - Helper view for keyboard shortcuts
-  [#91](https://github.com/nextcloud/mail/pull/91) @Gomez 
+  [#91](https://github.com/nextcloud/mail/pull/91) @Gomez
 - Generic moving of messages (drag and drop)
 - Account menu labels
 - Support for a automatically generated default account
@@ -511,7 +554,7 @@ All notable changes to this project will be documented in this file.
 ## 0.4.0 – 2016-03-17
 
 ### Added
-- Add console command for account creation 
+- Add console command for account creation
   [#1202](https://github.com/owncloud/mail/pull/1202) @ChristophWurst
 - Address collector - Addresses of sent mails will be used for auto-completion
   [#1276](https://github.com/owncloud/mail/pull/1276) @ChristophWurst
@@ -519,8 +562,8 @@ All notable changes to this project will be documented in this file.
   [#1300](https://github.com/owncloud/mail/pull/1300) @ChristophWurst
 
 ### Deprecated
-- Drop owncloud 7 support 
-  [#1267](https://github.com/owncloud/mail/pull/1267) @ChristophWurst 
+- Drop owncloud 7 support
+  [#1267](https://github.com/owncloud/mail/pull/1267) @ChristophWurst
 
 ## 0.3.1
 

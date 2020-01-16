@@ -42,7 +42,7 @@ import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph'
 
 import {getLanguage} from '@nextcloud/l10n'
 
-import {htmlToText} from '../util/HtmlHelper'
+import logger from '../logger'
 
 export default {
 	name: 'TextEditor',
@@ -61,6 +61,10 @@ export default {
 		placeholder: {
 			type: String,
 			default: '',
+		},
+		focus: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	data() {
@@ -127,16 +131,18 @@ export default {
 					priority: 'highest',
 				}
 			)
+			if (this.focus) {
+				logger.debug('focusing TextEditor')
+			}
 
 			// Set value as late as possible, so the custom schema listener is used
 			// for the initial editor model
-			if (this.html) {
-				this.text = this.value
-			} else {
-				this.text = `<p>${htmlToText(this.value).replace(/[\n\r]/gm, '<br>')}</p>`
-			}
+			this.text = this.value
+
+			logger.debug(`setting TextEditor contents to <${this.text}>`)
 		},
 		onInput() {
+			logger.debug(`TextEditor input changed to <${this.text}>`)
 			this.$emit('input', this.text)
 		},
 	},
