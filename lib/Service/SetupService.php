@@ -95,7 +95,7 @@ class SetupService {
 	 * @param string $smtpPassword
 	 * @param string $uid
 	 */
-	public function createNewAccount($accountName, $emailAddress, $imapHost, $imapPort, $imapSslMode, $imapUser, $imapPassword, $smtpHost, $smtpPort, $smtpSslMode, $smtpUser, $smtpPassword, $uid, $accountId = null) {
+	public function createNewAccount($accountName, $emailAddress, $imapHost, $imapPort, $imapSslMode, $imapUser, $imapPassword, $smtpHost, $smtpPort, $smtpSslMode, $smtpUser, $smtpPassword, $uid, $accountId = null, $shared = false) {
 		$this->logger->info('Setting up manually configured account');
 		$newAccount = new MailAccount([
 			'accountId' => $accountId,
@@ -110,7 +110,8 @@ class SetupService {
 			'smtpPort' => $smtpPort,
 			'smtpSslMode' => $smtpSslMode,
 			'smtpUser' => $smtpUser,
-			'smtpPassword' => $smtpPassword
+			'smtpPassword' => $smtpPassword,
+			'shared' => $shared
 		]);
 		$newAccount->setUserId($uid);
 		$newAccount->setInboundPassword($this->crypto->encrypt($newAccount->getInboundPassword()));

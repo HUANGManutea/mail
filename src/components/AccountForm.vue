@@ -37,13 +37,23 @@
 			<tab id="manual" key="manual" :name="t('mail', 'Manual')">
 				<div>
 					<input
+						id="man-shared"
+						v-model="manualConfig.shared"
+						type="checkbox"
+						class="checkbox"
+						:disabled="loading"
+					/>
+					<label for="man-shared">{{ t('mail', 'Shared Account') }}</label>
+				</div>
+				<div>
+					<input
 						id="man-backup"
 						v-model="manualConfig.backup"
 						type="checkbox"
 						class="checkbox"
 						:disabled="loading"
 					/>
-					<label for="man-backup">{{ t('mail', 'Backup account') }}</label>
+					<label for="man-backup">{{ t('backupmail', 'Backup Account') }}</label>
 				</div>
 				<label for="man-name">{{ t('mail', 'Name') }}</label>
 				<input
@@ -302,6 +312,7 @@ export default {
 				smtpUser: fromAccountOr('smtpUser', ''),
 				smtpPassword: '',
 				backup: false,
+				shared: false,
 			},
 			submitButtonText: this.account ? t('mail', 'Save') : t('mail', 'Connect'),
 		}

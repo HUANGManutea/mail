@@ -134,4 +134,18 @@ class MailAccountMapper extends QBMapper {
 		$delete->execute();
 	}
 
+	/**
+	 * Finds all shared Mail Accounts
+	 *
+	 * @return MailAccount[]
+	 */
+	public function findSharedAccounts(): array {
+		$qb = $this->db->getQueryBuilder();
+		$query = $qb
+			->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('shared', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)));
+		return $this->findEntities($query);
+	}
+
 }

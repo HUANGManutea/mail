@@ -67,6 +67,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setProvisioned(bool $provisioned)
  * @method int getOrder()
  * @method void setOrder(int $order)
+ * @method bool getShared()
+ * @method void setShared(bool $shared)
  */
 class MailAccount extends Entity {
 
@@ -88,6 +90,7 @@ class MailAccount extends Entity {
 	protected $editorMode;
 	protected $provisioned;
 	protected $order;
+	protected $shared;
 
 	/**
 	 * @param array $params
@@ -134,11 +137,15 @@ class MailAccount extends Entity {
 		if (isset($params['smtpPassword'])) {
 			$this->setOutboundPassword($params['smtpPassword']);
 		}
+		if (isset($params['shared'])) {
+			$this->setShared($params['shared']);
+		}
 
 		$this->addType('inboundPort', 'integer');
 		$this->addType('outboundPort', 'integer');
 		$this->addType('lastMailboxSync', 'integer');
 		$this->addType('provisioned', 'bool');
+		$this->addType('shared', 'bool');
 		$this->addType('order', 'integer');
 	}
 
@@ -158,6 +165,7 @@ class MailAccount extends Entity {
 			'signature' => $this->getSignature(),
 			'editorMode' => $this->getEditorMode(),
 			'provisioned' => $this->getProvisioned(),
+			'shared' => $this->getShared(),
 		];
 
 		if (!is_null($this->getOutboundHost())) {

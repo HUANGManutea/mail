@@ -123,4 +123,26 @@ class AccountService {
 		$this->mapper->save($mailAccount);
 	}
 
+		/**
+	 * @param string $currentUserId
+	 * @return Account[]
+	 */
+	public function findAllowedAccounts(string $currentUserId): array {
+		if ($this->accounts === null) {
+			$userAccounts = array_map(function ($a) {
+				return new Account($a);
+			}, $this->mapper->findByUserId($currentUserId));
+
+			$sharedAccounts = array_map(function ($a) {
+				return new Account($a);
+			}, $this->mapper->findSharedAccounts());
+
+			$accounts = array_unique(array_merge($userAccounts, $sharedAccounts));
+			$this->accounts = $accounts;
+		}
+		throw new \Exception(json_encode($this->accounts));
+
+		return $this->accounts;
+	}
+
 }
