@@ -3,6 +3,10 @@ import Axios from '@nextcloud/axios'
 import {filterToText} from '../util/Filter'
 
 // Accounts
+export const getBackupAccounts = () => {
+	const url = generateUrl('/apps/backupmail/api/account')
+	return Axios.get(url).then(resp => resp.data)
+}
 export const createBackupAccount = ({accountId, email}) => {
 	const url = generateUrl('/apps/backupmail/api/account')
 	return Axios.post(url, {

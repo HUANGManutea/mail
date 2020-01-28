@@ -49,6 +49,7 @@ import {
 	getFullText,
 } from '../service/MessageService'
 import {
+	getBackupAccounts,
 	getFilters,
 	createBackupAccount,
 	deleteBackupAccount,
@@ -551,6 +552,16 @@ export default {
 	},
 	postBackupEnvelopes({commit}, envelopes) {
 		return postBackupEnvelopes(envelopes)
+	},
+	getBackupAccounts({commit}) {
+		return getBackupAccounts().then(accounts => {
+			if (!isEmpty(accounts)) {
+				accounts.forEach(account => {
+					commit('addBackupAccount', account)
+				})
+			}
+			return accounts
+		})
 	},
 	getBackupMails({commit}, {accountId, folderId}) {
 		return getBackupMails({accountId: accountId, mailboxId: folderId}).then(backupMails => {

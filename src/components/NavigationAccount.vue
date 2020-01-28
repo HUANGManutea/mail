@@ -133,9 +133,6 @@ export default {
 			this.$store
 				.dispatch('deleteAccount', this.account)
 				.then(() => {
-					return this.$store.dispatch('deleteBackupAccount', id)
-				})
-				.then(() => {
 					logger.info(`account ${id} deleted, redirecting …`)
 
 					// TODO: update store and handle this more efficiently

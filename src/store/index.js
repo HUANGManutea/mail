@@ -81,6 +81,11 @@ export const getters = {
 	getFilters: state => accountId => {
 		return state.filters[accountId]
 	},
+	isBackupEnabled: state => accountId => {
+		// TODO
+		const account = state.accounts[accountId]
+		return accountId != UNIFIED_ACCOUNT_ID && state.backupAccounts[account.emailAddress] != null
+	},
 	getBackupMail: state => (accountId, folderId, id) => {
 		return state.backupMails[accountId + '-' + folderId + '-' + id]
 	},
@@ -121,6 +126,7 @@ export default new Vuex.Store({
 		messages: {},
 		filters: {},
 		backupMails: {},
+		backupAccounts: {},
 		autocompleteEntries: [],
 	},
 	getters,

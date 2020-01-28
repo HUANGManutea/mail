@@ -5,7 +5,7 @@
 			<Loading v-if="loading" :hint="t('mail', 'Loading messages')" />
 			<template v-else>
 				<div>
-					<div v-if="account.id != 0" class="folder-content-header">
+					<div v-if="backupEnabled" class="folder-content-header">
 						<Multiselect
 							v-model="selectedSaved"
 							:options="selectableSaved"
@@ -112,55 +112,70 @@ export default {
 			)
 		},
 		envelopes() {
-			let mails = []
-			let allFilters = []
-			// add filter on saved only if saved/unsaved filter is selected
-			if (this.selectedSaved != null) {
-				if (this.selectedSaved.value) {
-					// add filter on unsavedMail
-					allFilters.push(mail => mail.saved)
-				} else {
-					// add filter on savedMail
-					allFilters.push(mail => !mail.saved)
-				}
-			}
-			// add filter on subject
-			if (!lodash.isEmpty(this.selectedFilters)) {
-				allFilters.push(envelope => {
-					let filtered = false
-					this.selectedFilters.forEach(filter => {
-						filtered = filtered || envelope.subject.includes(filter.text)
-					})
-					return filtered
-				})
-			}
-
-			if (this.searchQuery === undefined) {
-				mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
-			} else {
-				mails = this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
-			}
-			mails = mails.map(mail => {
-				const existingBackupMail = this.$store.getters.getBackupMail(this.account.id, this.folder.id, mail.id)
-				if (existingBackupMail != null) {
-					return {
-						...mail,
-						saved: !!+existingBackupMail.saved,
+			if (this.$store.getters.isBackupEnabled(this.account.id)) {
+				let mails = []
+				let allFilters = []
+				// add filter on saved only if saved/unsaved filter is selected
+				if (this.selectedSaved != null) {
+					if (this.selectedSaved.value) {
+						// add filter on unsavedMail
+						allFilters.push(mail => mail.saved)
+					} else {
+						// add filter on savedMail
+						allFilters.push(mail => !mail.saved)
 					}
-				} else {
-					return mail
 				}
-			})
+				// add filter on subject
+				if (!lodash.isEmpty(this.selectedFilters)) {
+					allFilters.push(envelope => {
+						let filtered = false
+						this.selectedFilters.forEach(filter => {
+							filtered = filtered || envelope.subject.includes(filter.text)
+						})
+						return filtered
+					})
+				}
 
-			// apply filters
-			let filteredMails = mails
-			allFilters.forEach(predicate => {
-				filteredMails = filteredMails.filter(predicate)
-			})
-			return filteredMails
+				if (this.searchQuery === undefined) {
+					mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
+				} else {
+					mails = this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
+				}
+				mails = mails.map(mail => {
+					const existingBackupMail = this.$store.getters.getBackupMail(
+						this.account.id,
+						this.folder.id,
+						mail.id
+					)
+					if (existingBackupMail != null) {
+						return {
+							...mail,
+							saved: !!+existingBackupMail.saved,
+						}
+					} else {
+						return mail
+					}
+				})
+
+				// apply filters
+				let filteredMails = mails
+				allFilters.forEach(predicate => {
+					filteredMails = filteredMails.filter(predicate)
+				})
+				return filteredMails
+			} else {
+				if (this.searchQuery === undefined) {
+					return this.$store.getters.getEnvelopes(this.account.id, this.folder.id)
+				} else {
+					return this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
+				}
+			}
 		},
 		selectableFilters() {
 			return this.$store.getters.getFilters(this.account.id)
+		},
+		backupEnabled() {
+			return this.$store.getters.isBackupEnabled(this.account.id)
 		},
 	},
 	watch: {
@@ -192,13 +207,14 @@ export default {
 					query: this.searchQuery,
 				})
 				.then(() => {
-					return this.$store.dispatch('postBackupEnvelopes', this.envelopes)
-				})
-				.then(() => {
-					return this.$store.dispatch('getBackupMails', {
-						accountId: this.account.id,
-						folderId: this.folder.id,
-					})
+					if (this.$store.getters.isBackupEnabled(this.account.id)) {
+						return this.$store.dispatch('postBackupEnvelopes', this.envelopes).then(() => {
+							return this.$store.dispatch('getBackupMails', {
+								accountId: this.account.id,
+								folderId: this.folder.id,
+							})
+						})
+					}
 				})
 				.then(() => {
 					const envelopes = this.envelopes

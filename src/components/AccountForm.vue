@@ -35,6 +35,16 @@
 				/>
 			</tab>
 			<tab id="manual" key="manual" :name="t('mail', 'Manual')">
+				<div>
+					<input
+						id="man-backup"
+						v-model="manualConfig.backup"
+						type="checkbox"
+						class="checkbox"
+						:disabled="loading"
+					/>
+					<label for="man-backup">{{ t('mail', 'Backup account') }}</label>
+				</div>
 				<label for="man-name">{{ t('mail', 'Name') }}</label>
 				<input
 					id="man-name"
@@ -291,6 +301,7 @@ export default {
 				smtpSslMode: fromAccountOr('smtpSslMode', 'tls'),
 				smtpUser: fromAccountOr('smtpUser', ''),
 				smtpPassword: '',
+				backup: false,
 			},
 			submitButtonText: this.account ? t('mail', 'Save') : t('mail', 'Connect'),
 		}
