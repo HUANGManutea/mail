@@ -78,19 +78,19 @@ export default {
 		},
 		backupModalSubmit() {
 			this.checkCaseAndStep()
-			// this.$store
-			// 	.dispatch('backupMessage', {
-			// 		envelope: this.data,
-			// 		caseNumber: this.backupCaseNumber,
-			// 		step: this.backupStep,
-			// 	})
-			// 	.then(() => {
-			// 		this.backuping = false
-			// 	})
-			// 	.catch(() => {
-			// 		this.backuping = false
-			// 	})
-			// this.$emit('closeBackupModal')
+			this.$store
+				.dispatch('backupMessage', {
+					envelope: this.data,
+					caseNumber: this.backupCaseNumber,
+					step: this.backupStep,
+				})
+				.then(() => {
+					this.backuping = false
+				})
+				.catch(() => {
+					this.backuping = false
+				})
+			this.$emit('closeBackupModal')
 		},
 		closeBackupModal(e) {
 			this.$emit('closeBackupModal')
@@ -103,7 +103,6 @@ export default {
 					.includes(fullFilter)
 				this.canCreate = filterExists
 				this.filterTested = true
-				console.log('filtered')
 			})
 		},
 		navigateCreateCase() {
