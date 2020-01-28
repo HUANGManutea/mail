@@ -33,7 +33,10 @@
 			</div>
 		</div>
 		<Actions class="app-content-list-item-menu" menu-align="right">
-			<ActionButton :icon="backuping ? 'icon-loading-small' : 'icon-upload'" @click.prevent="onShowBackupModal">
+			<ActionButton
+				:icon="showBackupModal ? 'icon-loading-small' : 'icon-upload'"
+				@click.prevent="onShowBackupModal"
+			>
 				{{ t('mail', 'Backup') }}
 			</ActionButton>
 			<ActionButton icon="icon-mail" @click.prevent="onToggleSeen">{{
@@ -41,8 +44,8 @@
 			}}</ActionButton>
 			<ActionButton icon="icon-delete" @click.prevent="onDelete">{{ t('mail', 'Delete') }}</ActionButton>
 		</Actions>
-		<template v-if="backuping">
-			<BackupModal :envelope="data" :backuping="backuping" @closeBackupModal="closeBackupModal" />
+		<template v-if="showBackupModal">
+			<BackupModal :envelope="data" @closeBackupModal="closeBackupModal" />
 		</template>
 	</router-link>
 </template>
@@ -77,7 +80,7 @@ export default {
 	},
 	data: function() {
 		return {
-			backuping: false,
+			showBackupModal: false,
 		}
 	},
 	computed: {
@@ -157,10 +160,10 @@ export default {
 			this.$store.dispatch('deleteMessage', this.data)
 		},
 		onShowBackupModal() {
-			this.backuping = true
+			this.showBackupModal = true
 		},
 		closeBackupModal(e) {
-			this.backuping = false
+			this.showBackupModal = false
 		},
 	},
 }

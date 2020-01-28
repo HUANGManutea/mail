@@ -15,17 +15,25 @@
 				</div>
 			</template>
 			<template v-else>
-				<template v-if="canCreate">
-					<p>Backup in progress</p>
+				<template v-if="waiting">
+					<p>Requesting filters, please wait</p>
 				</template>
 				<template v-else>
-					<p>The case number and step does not exist, please create a new case or step</p>
-					<div class="backupmail-flex-row backupmail-flex-space-between">
-						<button class="button" @click="reset">{{ t('mail', 'Go back') }}</button>
-						<button class="button primary" @click="navigateCreateCase">
-							{{ t('mail', 'Create case') }}
-						</button>
-					</div>
+					<!-- end waiting -->
+					<template v-if="canCreate">
+						<!-- creating backup files -->
+						<p>Backup in progress</p>
+					</template>
+					<template v-else>
+						<!-- ask for filter creation -->
+						<p>The case number and step does not exist, please create a new case or step</p>
+						<div class="backupmail-flex-row backupmail-flex-space-between">
+							<button class="button" @click="reset">{{ t('mail', 'Go back') }}</button>
+							<button class="button primary" @click="navigateCreateCase">
+								{{ t('mail', 'Create case') }}
+							</button>
+						</div>
+					</template>
 				</template>
 			</template>
 		</div>
@@ -52,6 +60,7 @@ export default {
 		return {
 			filterTested: false,
 			canCreate: false,
+			waiting: true,
 			caseNumber: '',
 			step: '',
 			accountId: null,
@@ -64,6 +73,7 @@ export default {
 		init() {
 			this.filterTested = false
 			this.canCreate = false
+			this.waiting = true
 			if (this.envelope != null) {
 				//find case number and step
 				const pattern = /\[(\d+)\.(\d+)\]/
@@ -77,32 +87,36 @@ export default {
 			this.init()
 		},
 		backupModalSubmit() {
-			this.checkCaseAndStep()
-			this.$store
-				.dispatch('backupMessage', {
-					envelope: this.data,
-					caseNumber: this.backupCaseNumber,
-					step: this.backupStep,
-				})
-				.then(() => {
-					this.backuping = false
-				})
-				.catch(() => {
-					this.backuping = false
-				})
-			this.$emit('closeBackupModal')
+			this.checkCaseAndStep().then(canCreate => {
+				if (canCreate) {
+					return this.$store
+						.dispatch('backupMessage', {
+							envelope: this.envelope,
+							caseNumber: this.caseNumber,
+							step: this.step,
+						})
+						.then(() => {
+							this.$emit('closeBackupModal')
+						})
+						.catch(() => {
+							this.$emit('closeBackupModal')
+						})
+				}
+			})
 		},
 		closeBackupModal(e) {
 			this.$emit('closeBackupModal')
 		},
 		checkCaseAndStep() {
 			const fullFilter = `${this.caseNumber}.${this.step}`
-			this.$store.dispatch('getFilters', this.envelope.accountId).then(filters => {
+			return this.$store.dispatch('getFilters', this.envelope.accountId).then(filters => {
 				const filterExists = lodash(filters)
 					.map(f => f.text)
 					.includes(fullFilter)
-				this.canCreate = filterExists
 				this.filterTested = true
+				this.waiting = false
+				this.canCreate = filterExists
+				return this.canCreate
 			})
 		},
 		navigateCreateCase() {
@@ -112,6 +126,7 @@ export default {
 				`/${this.accountId}/${this.caseNumber}/${this.step}`
 			window.open(route, '_blank')
 			this.filterTested = false
+			this.waiting = true
 		},
 	},
 }
