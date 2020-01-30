@@ -92,9 +92,7 @@ class AccountsController extends Controller {
 	 * @return JSONResponse
 	 */
 	public function index(): JSONResponse {
-		throw new \Exception("find all");
-		// $mailAccounts = $this->accountService->findByUserId($this->currentUserId);
-		$mailAccounts = $this->accountService->findAllowedAccounts($this->currentUserId);
+		$mailAccounts = $this->accountService->findByUserId($this->currentUserId);
 
 		$json = [];
 		foreach ($mailAccounts as $mailAccount) {
@@ -268,7 +266,12 @@ class AccountsController extends Controller {
 			if ($autoDetect) {
 				$account = $this->setup->createNewAutoConfiguredAccount($accountName, $emailAddress, $password);
 			} else {
-				$account = $this->setup->createNewAccount($accountName, $emailAddress, $imapHost, $imapPort, $imapSslMode, $imapUser, $imapPassword, $smtpHost, $smtpPort, $smtpSslMode, $smtpUser, $smtpPassword, $this->currentUserId, null, $shared);
+				$id = null;
+				if ($shared) {
+					$nbSharedAccounts = $this->accountService->countSharedAccounts();
+					$id = 10000 + $nbSharedAccounts;
+				}
+				$account = $this->setup->createNewAccount($accountName, $emailAddress, $imapHost, $imapPort, $imapSslMode, $imapUser, $imapPassword, $smtpHost, $smtpPort, $smtpSslMode, $smtpUser, $smtpPassword, $this->currentUserId, $id, $shared);
 			}
 		} catch (Exception $ex) {
 			$errorMessage = $ex->getMessage();
@@ -381,5 +384,4 @@ class AccountsController extends Controller {
 			throw $ex;
 		}
 	}
-
 }

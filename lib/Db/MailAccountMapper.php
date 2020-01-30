@@ -148,4 +148,37 @@ class MailAccountMapper extends QBMapper {
 		return $this->findEntities($query);
 	}
 
+	/**
+	 * Finds shared mail account with id
+	 *
+	 * @param int $id the id of the account
+	 *
+	 * @return MailAccount
+	 */
+	public function findSharedAccountById(int $id): MailAccount {
+		$qb = $this->db->getQueryBuilder();
+		$query = $qb
+			->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id)))
+			->andWhere($qb->expr()->eq('shared', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)));
+
+		return $this->findEntity($query);
+	}
+
+	/**
+	 * Count the number of shared accounts
+	 * @return int
+	 */
+	public function countSharedAccounts(): int {
+		$qb = $this->db->getQueryBuilder();
+		$query = $qb
+			->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('shared', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)));
+
+		$entities = $this->findEntities($query);
+
+		return \count($entities);
+	}
 }

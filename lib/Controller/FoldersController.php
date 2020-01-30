@@ -34,6 +34,7 @@ use OCA\Mail\Service\AccountService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IRequest;
 
 class FoldersController extends Controller {
@@ -71,7 +72,13 @@ class FoldersController extends Controller {
 	 * @return JSONResponse
 	 */
 	public function index(int $accountId): JSONResponse {
-		$account = $this->accountService->find($this->currentUserId, $accountId);
+		$account = null;
+		try {
+			$account = $this->accountService->find($this->currentUserId, $accountId);
+		} catch (DoesNotExistException $e) {
+			// no account with accountId for current user, try shared accounts
+			$account = $this->accountService->findSharedAccountById($accountId);
+		}
 
 		$folders = $this->mailManager->getFolders($account);
 		return new JSONResponse([
@@ -93,7 +100,12 @@ class FoldersController extends Controller {
 	 * @return JSONResponse
 	 */
 	public function sync(int $accountId, string $folderId, string $syncToken, array $uids = []): JSONResponse {
-		$account = $this->accountService->find($this->currentUserId, $accountId);
+		try {
+			$account = $this->accountService->find($this->currentUserId, $accountId);
+		} catch (DoesNotExistException $e) {
+			// no account with accountId for current user, try shared accounts
+			$account = $this->accountService->findSharedAccountById($accountId);
+		}
 
 		if (empty($accountId) || empty($folderId) || empty($syncToken) || !is_array($uids)) {
 			return new JSONResponse(null, Http::STATUS_BAD_REQUEST);

@@ -70,9 +70,6 @@ export default {
 			return this.$store.getters.getAccount(this.$route.params.accountId).emailAddress
 		},
 	},
-	created() {
-		this.$store.dispatch('getBackupSettings')
-	},
 	methods: {
 		onSave(data) {
 			Logger.log('saving data', {data})

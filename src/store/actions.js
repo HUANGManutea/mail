@@ -75,7 +75,7 @@ export default {
 	fetchAccounts({commit, getters}) {
 		return fetchAllAccounts().then(accounts => {
 			accounts.forEach(account => commit('addAccount', account))
-			return getters.accounts
+			return getters.getAccounts()
 		})
 	},
 	fetchAccount({commit}, id) {

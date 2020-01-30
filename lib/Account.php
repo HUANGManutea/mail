@@ -216,4 +216,11 @@ class Account implements JsonSerializable {
 		return new Message();
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function getShared() {
+		return $this->account->getShared();
+	}
+
 }

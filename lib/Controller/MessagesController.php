@@ -141,7 +141,12 @@ class MessagesController extends Controller {
 		try {
 			$account = $this->accountService->find($this->currentUserId, $accountId);
 		} catch (DoesNotExistException $e) {
-			return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+			try {
+				// try shared accounts
+				$account = $this->accountService->findSharedAccountById($accountId);
+			} catch (DoesNotExistException $e) {
+				return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+			}
 		}
 
 		$this->logger->debug("loading messages of folder <$folderId>");
@@ -171,7 +176,12 @@ class MessagesController extends Controller {
 		try {
 			$account = $this->accountService->find($this->currentUserId, $accountId);
 		} catch (DoesNotExistException $e) {
-			return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+			try {
+				// try shared accounts
+				$account = $this->accountService->findSharedAccountById($accountId);
+			} catch (DoesNotExistException $e) {
+				return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+			}
 		}
 
 		$json = $this->mailManager->getMessage(
@@ -234,12 +244,17 @@ class MessagesController extends Controller {
 			try {
 				$account = $this->accountService->find($this->currentUserId, $accountId);
 			} catch (DoesNotExistException $e) {
-				return new TemplateResponse(
-					$this->appName,
-					'error',
-					['message' => 'Not allowed'],
-					'none'
-				);
+				try {
+					// try shared accounts
+					$account = $this->accountService->findSharedAccountById($accountId);
+				} catch (DoesNotExistException $e) {
+					return new TemplateResponse(
+						$this->appName,
+						'error',
+						['message' => 'Not allowed'],
+						'none'
+					);
+				}
 			}
 
 			$htmlResponse = new HtmlResponse(
@@ -408,7 +423,12 @@ class MessagesController extends Controller {
 		try {
 			$account = $this->accountService->find($this->currentUserId, $accountId);
 		} catch (DoesNotExistException $e) {
-			return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+			try {
+				// try shared accounts
+				$account = $this->accountService->findSharedAccountById($accountId);
+			} catch (DoesNotExistException $e) {
+				return new JSONResponse(null, Http::STATUS_FORBIDDEN);
+			}
 		}
 
 		$rawMails = array();
@@ -434,7 +454,13 @@ class MessagesController extends Controller {
 	 * @return IMailBox
 	 */
 	private function getFolder(int $accountId, string $folderId): IMailBox {
-		$account = $this->accountService->find($this->currentUserId, $accountId);
+		try {
+			$account = $this->accountService->find($this->currentUserId, $accountId);
+		} catch (DoesNotExistException $e) {
+			// try shared account
+			$account = $this->accountService->findSharedAccountById($accountId);
+		}
+		
 		return $account->getMailbox(base64_decode($folderId));
 	}
 

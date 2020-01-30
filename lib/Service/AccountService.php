@@ -137,12 +137,28 @@ class AccountService {
 				return new Account($a);
 			}, $this->mapper->findSharedAccounts());
 
-			$accounts = array_unique(array_merge($userAccounts, $sharedAccounts));
-			$this->accounts = $accounts;
+			$this->accounts = array_unique(array_merge($userAccounts, $sharedAccounts), SORT_REGULAR);
 		}
-		throw new \Exception(json_encode($this->accounts));
-
 		return $this->accounts;
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return Account
+	 * @throws DoesNotExistException
+	 */
+	public function findSharedAccountById(int $id): Account {
+		return new Account($this->mapper->findSharedAccountById($id));
+	}
+
+		/**
+	 *
+	 * @return int
+	 * @throws DoesNotExistException
+	 */
+	public function countSharedAccounts(): int {
+		return $this->mapper->countSharedAccounts();
 	}
 
 }

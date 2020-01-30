@@ -102,13 +102,18 @@ class PageController extends Controller {
 	 * @return TemplateResponse renders the index page
 	 */
 	public function index(): TemplateResponse {
-		$mailAccounts = $this->accountService->findByUserId($this->currentUserId);
+		$allAccounts = $this->accountService->findAllowedAccounts($this->currentUserId);
 
 		$accountsJson = [];
-		foreach ($mailAccounts as $mailAccount) {
+		foreach ($allAccounts as $mailAccount) {
 			$json = $mailAccount->jsonSerialize();
-			$json['aliases'] = $this->aliasesService->findAll($mailAccount->getId(),
+			if (!$mailAccount->getShared()) {
+				$json['aliases'] = $this->aliasesService->findAll($mailAccount->getId(),
 				$this->currentUserId);
+			} else {
+				$json['aliases'] = $this->aliasesService->findAll($mailAccount->getId(),
+				'admin');
+			}
 			try {
 				$folders = $this->mailManager->getFolders($mailAccount);
 				$json['folders'] = $folders;
