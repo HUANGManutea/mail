@@ -266,12 +266,7 @@ class AccountsController extends Controller {
 			if ($autoDetect) {
 				$account = $this->setup->createNewAutoConfiguredAccount($accountName, $emailAddress, $password);
 			} else {
-				$id = null;
-				if ($shared) {
-					$nbSharedAccounts = $this->accountService->countSharedAccounts();
-					$id = 10000 + $nbSharedAccounts;
-				}
-				$account = $this->setup->createNewAccount($accountName, $emailAddress, $imapHost, $imapPort, $imapSslMode, $imapUser, $imapPassword, $smtpHost, $smtpPort, $smtpSslMode, $smtpUser, $smtpPassword, $this->currentUserId, $id, $shared);
+				$account = $this->setup->createNewAccount($accountName, $emailAddress, $imapHost, $imapPort, $imapSslMode, $imapUser, $imapPassword, $smtpHost, $smtpPort, $smtpSslMode, $smtpUser, $smtpPassword, $this->currentUserId, null, $shared);
 			}
 		} catch (Exception $ex) {
 			$errorMessage = $ex->getMessage();

@@ -152,13 +152,4 @@ class AccountService {
 		return new Account($this->mapper->findSharedAccountById($id));
 	}
 
-		/**
-	 *
-	 * @return int
-	 * @throws DoesNotExistException
-	 */
-	public function countSharedAccounts(): int {
-		return $this->mapper->countSharedAccounts();
-	}
-
 }

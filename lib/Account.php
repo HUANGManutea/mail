@@ -91,6 +91,13 @@ class Account implements JsonSerializable {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function setId(int $value) {
+		return $this->account->setId($value);
+	}
+
+	/**
 	 * @param Alias|null $alias
 	 * @return void
 	 */
