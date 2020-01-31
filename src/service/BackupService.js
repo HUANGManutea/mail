@@ -34,7 +34,7 @@ export const deleteBackupFolders = accountId => {
 
 // filters
 export const getFilters = accountId => {
-	const url = generateUrl('/apps/backupmail/api/filter/byAccount/{accountId}', {accountId: accountId})
+	const url = generateUrl('/apps/backupmail/api/filter/byAccount/{accountId}/external', {accountId: accountId})
 	return Axios.get(url)
 		.then(resp => resp.data)
 		.then(filters => filters.map(filterToText))
