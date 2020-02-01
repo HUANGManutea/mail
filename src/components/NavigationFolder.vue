@@ -32,12 +32,13 @@
 		<!-- actions -->
 		<template slot="actions">
 			<template v-if="top">
-				<ActionText icon="icon-info" :title="folderId">
+				<ActionText v-if="!account.isUnified" icon="icon-info" :title="folderId">
 					{{ statsText }}
 				</ActionText>
 
 				<!-- TODO: make *mark as read* available for all folders once there is more than one action -->
 				<ActionButton
+					v-if="!account.isUnified"
 					icon="icon-checkmark"
 					:title="t('mail', 'Mark all as read')"
 					:disabled="loadingMarkAsRead"
@@ -46,7 +47,7 @@
 					{{ t('mail', 'Mark all messages of this folder as read') }}
 				</ActionButton>
 
-				<ActionInput icon="icon-add" @submit="createFolder">
+				<ActionInput v-if="!account.isUnified" icon="icon-add" @submit="createFolder">
 					{{ t('mail', 'Add subfolder') }}
 				</ActionInput>
 			</template>
@@ -131,11 +132,11 @@ export default {
 		statsText() {
 			if (this.folderStats && 'total' in this.folderStats && 'unread' in this.folderStats) {
 				if (this.folderStats.unread === 0) {
-					return t('mail', '{total} messages', {
+					return n('mail', '{total} message', '{total} messages', {
 						total: this.folderStats.total,
 					})
 				} else {
-					return t('mail', '{unread} unread of {total}', {
+					return n('mail', '{unread} unread of {total}', '{unread} unread of {total}', {
 						total: this.folderStats.total,
 						unread: this.folderStats.unread,
 					})
@@ -178,7 +179,7 @@ export default {
 		},
 
 		createFolder(e) {
-			const name = e.target.elements[0].value
+			const name = e.target.elements[1].value
 			const withPrefix = atob(this.folder.id) + this.folder.delimiter + name
 			logger.info(`creating folder ${withPrefix} as subfolder of ${this.folder.id}`)
 			this.menuOpen = false

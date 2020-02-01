@@ -307,8 +307,21 @@ class MessagesController extends Controller {
 
 		$attachment = $mailBox->getAttachment($messageId, $attachmentId);
 
+		// Body party and embedded messages do not have a name
+		if ($attachment->getName() === null) {
+			return new AttachmentDownloadResponse(
+				$attachment->getContents(),
+				$this->l10n->t('Embedded message %s', [
+					$attachmentId,
+				]) . '.eml',
+				$attachment->getType()
+			);
+		}
 		return new AttachmentDownloadResponse(
-			$attachment->getContents(), $attachment->getName(), $attachment->getType());
+			$attachment->getContents(),
+			$attachment->getName(),
+			$attachment->getType()
+		);
 	}
 
 	/**
@@ -341,7 +354,9 @@ class MessagesController extends Controller {
 		foreach ($attachmentIds as $attachmentId) {
 			$attachment = $mailBox->getAttachment($messageId, $attachmentId);
 
-			$fileName = $attachment->getName();
+			$fileName = $attachment->getName() ?? $this->l10n->t('Embedded message %s', [
+					$attachmentId,
+				]) . '.eml';
 			$fileParts = pathinfo($fileName);
 			$fileName = $fileParts['filename'];
 			$fileExtension = $fileParts['extension'];
@@ -513,7 +528,7 @@ class MessagesController extends Controller {
 	 * @return boolean
 	 */
 	private function attachmentIsCalendarEvent(array $attachment): bool {
-		return in_array($attachment['mime'],  ['text/calendar', 'application/ics'], true);
+		return in_array($attachment['mime'], ['text/calendar', 'application/ics'], true);
 	}
 
 }

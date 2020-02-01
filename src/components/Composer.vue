@@ -14,6 +14,7 @@
 				:hide-selected="true"
 				:custom-label="formatAliases"
 				:placeholder="t('mail', 'Select account')"
+				:clear-on-select="false"
 				@keyup="onInputChanged"
 			/>
 		</div>
@@ -31,18 +32,20 @@
 				track-by="email"
 				:multiple="true"
 				:placeholder="t('mail', 'Contact or email address …')"
+				:clear-on-select="false"
 				:show-no-options="false"
+				:preserve-search="true"
 				@keyup="onInputChanged"
 				@tag="onNewToAddr"
 				@search-change="onAutocomplete"
 			/>
 			<a v-if="!showCC" class="copy-toggle" href="#" @click.prevent="showCC = true">
-				{{ t('mail', '+ Copy') }}
+				{{ t('mail', '+ CC/BCC') }}
 			</a>
 		</div>
 		<div v-if="showCC" class="composer-fields">
 			<label for="cc" class="cc-label">
-				{{ t('mail', 'Copy') }}
+				{{ t('mail', 'CC') }}
 			</label>
 			<Multiselect
 				id="cc"
@@ -53,7 +56,9 @@
 				track-by="email"
 				:multiple="true"
 				:placeholder="t('mail', '')"
+				:clear-on-select="false"
 				:show-no-options="false"
+				:preserve-search="true"
 				@keyup="onInputChanged"
 				@tag="onNewCcAddr"
 				@search-change="onAutocomplete"
@@ -63,7 +68,7 @@
 		</div>
 		<div v-if="showCC" class="composer-fields">
 			<label for="bcc" class="bcc-label">
-				{{ t('mail', 'Blind copy') }}
+				{{ t('mail', 'BCC') }}
 			</label>
 			<Multiselect
 				id="bcc"
@@ -75,6 +80,7 @@
 				:multiple="true"
 				:placeholder="t('mail', '')"
 				:show-no-options="false"
+				:preserve-search="true"
 				@keyup="onInputChanged"
 				@tag="onNewBccAddr"
 				@search-change="onAutocomplete"
@@ -151,6 +157,7 @@
 						class="submit-message send primary icon-confirm-white"
 						type="submit"
 						:value="submitButtonTitle"
+						:disabled="!canSend"
 						@click="onSend"
 					/>
 				</div>
@@ -291,6 +298,9 @@ export default {
 		},
 		noSubject() {
 			return this.subjectVal === '' && this.bodyVal !== ''
+		},
+		canSend() {
+			return this.selectTo.length > 0 || this.selectCc.length > 0 || this.selectBcc.length > 0
 		},
 	},
 	watch: {

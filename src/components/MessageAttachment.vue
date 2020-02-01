@@ -24,7 +24,7 @@
 		<img v-if="isImage" class="mail-attached-image" :src="url" />
 		<img class="attachment-icon" :src="mimeUrl" />
 		<span class="attachment-name" :title="label"
-			>{{ fileName }}
+			>{{ name }}
 			<span class="attachment-size">({{ humanReadable(size) }})</span>
 		</span>
 		<button
@@ -56,6 +56,7 @@
 <script>
 import {formatFileSize} from '@nextcloud/files'
 import {mixin as onClickOutside} from 'vue-on-click-outside'
+import {translate as t} from '@nextcloud/l10n'
 import {getFilePickerBuilder} from '@nextcloud/dialogs'
 import PopoverMenu from '@nextcloud/vue/dist/Components/PopoverMenu'
 
@@ -78,7 +79,8 @@ export default {
 		},
 		fileName: {
 			type: String,
-			required: true,
+			default: t('mail', 'Unnamed'),
+			required: false,
 		},
 		url: {
 			type: String,
@@ -86,6 +88,10 @@ export default {
 		},
 		size: {
 			type: Number,
+			required: true,
+		},
+		mime: {
+			type: String,
 			required: true,
 		},
 		mimeUrl: {
@@ -110,7 +116,16 @@ export default {
 		}
 	},
 	computed: {
+		name() {
+			if (this.mime === 'message/rfc822') {
+				return t('mail', 'Embedded message')
+			}
+			return this.fileName
+		},
 		label() {
+			if (this.mime === 'message/rfc822') {
+				return t('mail', 'Embedded message') + ' (' + formatFileSize(this.size) + ')'
+			}
 			return this.fileName + ' (' + formatFileSize(this.size) + ')'
 		},
 		calendarMenuEntries() {

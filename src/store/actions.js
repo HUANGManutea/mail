@@ -126,7 +126,7 @@ export default {
 	},
 	createFolder({commit}, {account, name}) {
 		return createFolder(account.id, name).then(folder => {
-			console.debug(`folder ${name} created for account ${account.id}`)
+			console.debug(`folder ${name} created for account ${account.id}`, {folder})
 			commit('addFolder', {account, folder})
 		})
 	},

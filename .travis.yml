@@ -1,23 +1,17 @@
 sudo: required
-dist: trusty
+dist: xenial
 language: php
 php:
   - 7.2
   - 7.3
-  - 7.4snapshot
+  - 7.4
 jobs:
   allow_failures:
   - php: nightly
 
-addons:
-  apt:
-    packages:
-    - mysql-server-5.6
-    - mysql-client-core-5.6
-    - mysql-client-5.6
-
 services:
   - docker
+  - mysql
   - postgresql
 
 env:
@@ -42,11 +36,9 @@ matrix:
     - php: 7.2
       env: "PHP_COVERAGE=TRUE"
     - php: 7.3
-      env: "DB=pgsql CORE_BRANCH=stable17"
-    - php: 7.3
       env: "CORE_BRANCH=stable17"
     - php: 7.3
-      env: "DB=sqlite CORE_BRANCH=stable17"
+      env: "CORE_BRANCH=stable18"
     - php: nightly
       env: "DB=sqlite PATCH_VERSION_CHECK=TRUE"
   fast_finish: true
@@ -56,7 +48,6 @@ branches:
   - master
   - "/^stable\\d+(\\.\\d+)?$/"
   - /^v\d++(\.\d+)?+(\.\d+)?+(\.\d+)?$/
-  - refactor/vue
 
 cache:
   directories:
@@ -67,8 +58,8 @@ before_install:
   - php --info
 
   # Install Krankerl
-  - wget https://github.com/ChristophWurst/krankerl/releases/download/v0.10.1/krankerl_0.10.1_amd64.deb
-  - sudo dpkg -i krankerl_0.10.1_amd64.deb
+  - if [[ "$TEST_SUITE" = "PACKAGE" ]]; then wget https://github.com/ChristophWurst/krankerl/releases/download/v0.12.2/krankerl_0.12.2_amd64.deb; fi
+  - if [[ "$TEST_SUITE" = "PACKAGE" ]]; then sudo dpkg -i krankerl_0.12.2_amd64.deb; fi
 
   # Set up DB
   - if [[ "$DB" == 'pgsql' ]]; then createuser -U travis -s oc_autotest; fi

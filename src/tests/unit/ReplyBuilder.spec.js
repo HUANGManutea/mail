@@ -25,7 +25,7 @@ import {buildReplyBody, buildRecipients, buildReplySubject} from '../../ReplyBui
 describe('ReplyBuilder', () => {
 	it('creates a reply body without any sender', () => {
 		const body = 'Newsletter\nhello\ncheers'
-		const expectedReply = '\n\n\n> Newsletter\n> hello\n> cheers'
+		const expectedReply = '<p></p><p></p><br>&gt; Newsletter<br>&gt; hello<br>&gt; cheers'
 
 		const replyBody = buildReplyBody(body)
 
@@ -34,7 +34,7 @@ describe('ReplyBuilder', () => {
 
 	it('creates a reply body', () => {
 		const body = 'Newsletter\nhello'
-		const expectedReply = '\n\n"Test User" test@user.ru – November 5, 2018 '
+		const expectedReply = '<p></p><p></p>"Test User" test@user.ru – November 5, 2018 '
 
 		const replyBody = buildReplyBody(
 			body,
@@ -178,6 +178,50 @@ describe('ReplyBuilder', () => {
 
 		assertSameAddressList(reply.from, [jan])
 		assertSameAddressList(reply.to, [nina, list])
+		assertSameAddressList(reply.cc, [])
+	})
+
+	it('removes original sender for recipients list when same as replier (self-sent email)', () => {
+		const a = createAddress('a@domain.tld')
+		const b = createAddress('b@domain.tld')
+		envelope.from = [a]
+		envelope.to = [a, b]
+		envelope.cc = []
+
+		var reply = buildRecipients(envelope, a)
+
+		assertSameAddressList(reply.from, [a])
+		assertSameAddressList(reply.to, [b])
+		assertSameAddressList(reply.cc, [])
+	})
+
+	it('removes original sender for recipients list when same as replier (self-sent email) with many CC', () => {
+		const a = createAddress('a@domain.tld')
+		const b = createAddress('b@domain.tld')
+		const c = createAddress('c@domain.tld')
+		const d = createAddress('d@domain.tld')
+		const e = createAddress('e@domain.tld')
+		envelope.from = [a]
+		envelope.to = [b, c]
+		envelope.cc = [a, d, e]
+
+		const reply = buildRecipients(envelope, a)
+
+		assertSameAddressList(reply.from, [a])
+		assertSameAddressList(reply.to, [b, c])
+		assertSameAddressList(reply.cc, [d, e])
+	})
+
+	it('pure self-sent email', () => {
+		const a = createAddress('a@domain.tld')
+		envelope.from = [a]
+		envelope.to = [a]
+		envelope.cc = []
+
+		var reply = buildRecipients(envelope, a)
+
+		assertSameAddressList(reply.from, [a])
+		assertSameAddressList(reply.to, [a])
 		assertSameAddressList(reply.cc, [])
 	})
 
