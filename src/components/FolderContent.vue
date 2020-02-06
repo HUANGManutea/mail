@@ -208,12 +208,15 @@ export default {
 				})
 				.then(() => {
 					if (this.$store.getters.isBackupEnabled(this.account.id)) {
-						return this.$store.dispatch('postBackupEnvelopes', this.envelopes).then(() => {
-							return this.$store.dispatch('getBackupMails', {
-								accountId: this.account.id,
-								folderId: this.folder.id,
+						return this.$store
+							.dispatch('postBackupEnvelopes', this.envelopes)
+							.then(() => {
+								return this.$store.dispatch('getBackupMails', {
+									accountId: this.account.id,
+									folderId: this.folder.id,
+								})
 							})
-						})
+							.then(() => this.$store.dispatch('getFilters', this.account.id))
 					}
 				})
 				.then(() => {
@@ -238,7 +241,6 @@ export default {
 						})
 					}
 				})
-			this.$store.dispatch('getFilters', this.account.id)
 		},
 		hideMessage() {
 			this.$router.replace({

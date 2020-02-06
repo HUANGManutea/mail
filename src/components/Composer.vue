@@ -1,5 +1,6 @@
 <template>
 	<div v-if="state === STATES.EDITING" class="message-composer">
+		<BackupMessageExtender />
 		<div class="composer-fields mail-account">
 			<label class="from-label" for="from">
 				{{ t('mail', 'From') }}
@@ -199,6 +200,7 @@ import {htmlToText, textToSimpleHtml} from '../util/HtmlHelper'
 import Loading from './Loading'
 import logger from '../logger'
 import TextEditor from './TextEditor'
+import BackupMessageExtender from './backup/BackupMessageExtender'
 
 const debouncedSearch = debouncePromise(findRecipient, 500)
 
@@ -222,6 +224,7 @@ export default {
 		Loading,
 		Multiselect,
 		TextEditor,
+		BackupMessageExtender,
 	},
 	props: {
 		fromAccount: {

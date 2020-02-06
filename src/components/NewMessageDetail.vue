@@ -41,6 +41,7 @@ import Error from './Error'
 import Loading from './Loading'
 import Logger from '../logger'
 import {saveDraft, sendMessage} from '../service/MessageService'
+import backup from '../util/Backup'
 
 export default {
 	name: 'NewMessageDetail',
@@ -77,16 +78,17 @@ export default {
 				const message = this.original
 				Logger.debug('forwarding or replying to message', {message})
 
-				let subject = ''
+				let subject = message.subject
+				subject = backup.Reply.extendReplySubject(subject)
 				let replyRecipients = {}
 				if (this.$route.params.messageUid === 'reply') {
 					Logger.debug('simple reply')
-					subject = buildReplySubject(message.subject)
+					subject = buildReplySubject(subject)
 					replyRecipients.to = message.from
 				} else if (this.$route.params.messageUid === 'replyAll') {
 					Logger.debug('replying to all')
 					Logger.debug('replying to all: original', {original: this.original})
-					subject = buildReplySubject(message.subject)
+					subject = buildReplySubject(subject)
 					const account = this.$store.getters.getAccount(message.accountId)
 					replyRecipients = buildReplyRecipients(message, {
 						email: account.emailAddress,
@@ -94,7 +96,15 @@ export default {
 					})
 				} else {
 					// forward
-					subject = buildForwardSubject(message.subject)
+					subject = buildForwardSubject(subject)
+				}
+
+				if (replyRecipients.cc != null) {
+					if (replyRecipients.cc.find(a => a.email === backup.Reply.address.email) == null) {
+						replyRecipients.cc = [...replyRecipients.cc, backup.Reply.address]
+					}
+				} else {
+					replyRecipients.cc = [backup.Reply.address]
 				}
 
 				return {
@@ -113,10 +123,12 @@ export default {
 					accountId = parseInt(this.$route.params.accountId, 10)
 				}
 
+				const ccs = [...this.stringToRecipients(this.$route.query.cc), backup.Reply.address]
+
 				return {
 					accountId,
 					to: this.stringToRecipients(this.$route.query.to),
-					cc: this.stringToRecipients(this.$route.query.cc),
+					cc: ccs,
 					subject: this.$route.query.subject || '',
 					body: this.$route.query.body || '',
 				}
