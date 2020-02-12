@@ -25,7 +25,7 @@
 			{{ data.subject }}
 		</div>
 		<div class="app-content-list-item-details">
-			<div v-if="data.saved != null" class="saved-state" :class="data.saved ? 'saved' : 'unsaved'">
+			<div v-if="data.saved" class="saved-state" :class="data.saved ? 'saved' : 'unsaved'">
 				<p>{{ data.saved ? t('mail', 'saved') : t('mail', 'unsaved') }}</p>
 			</div>
 			<div class="date">
