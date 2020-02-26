@@ -47,8 +47,8 @@ export const getFilters = accountId => {
 }
 
 // envelopes
-export const postBackupEnvelopes = envelopes => {
-	const url = generateUrl('/apps/backupmail/api/mail/createMultiple')
+export const postBackupEnvelopes = ({accountId, envelopes}) => {
+	const url = generateUrl('/apps/backupmail/api/mail/{accountId}/createMultiple', {accountId: accountId})
 	return Axios.post(url, {envelopes: envelopes}).then(resp => resp.data)
 }
 export const getBackupMails = ({accountId, mailboxId}) => {

@@ -209,7 +209,7 @@ export default {
 				.then(() => {
 					if (this.$store.getters.isBackupEnabled(this.account.id)) {
 						return this.$store
-							.dispatch('postBackupEnvelopes', this.envelopes)
+							.dispatch('postBackupEnvelopes', {accountId: this.account.id, envelopes: this.envelopes})
 							.then(() => {
 								return this.$store.dispatch('getBackupMails', {
 									accountId: this.account.id,

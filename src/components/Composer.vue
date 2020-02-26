@@ -1,6 +1,5 @@
 <template>
 	<div v-if="state === STATES.EDITING" class="message-composer">
-		<BackupMessageExtender />
 		<div class="composer-fields mail-account">
 			<label class="from-label" for="from">
 				{{ t('mail', 'From') }}
@@ -90,6 +89,7 @@
 			</Multiselect>
 		</div>
 		<div class="composer-fields">
+			<BackupMessageExtender v-model="selectedFilter" />
 			<label for="subject" class="subject-label hidden-visually">
 				{{ t('mail', 'Subject') }}
 			</label>
@@ -287,6 +287,7 @@ export default {
 			selectBcc: this.bcc,
 			editorPlainText: this.isPlainText,
 			bus: new Vue(),
+			selectedFilter: null,
 		}
 	},
 	computed: {

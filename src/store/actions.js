@@ -550,8 +550,8 @@ export default {
 	deleteBackupFolders({commit}, accountId) {
 		return deleteBackupFolders(accountId)
 	},
-	postBackupEnvelopes({commit}, envelopes) {
-		return postBackupEnvelopes(envelopes)
+	postBackupEnvelopes({commit}, {accountId, envelopes}) {
+		return postBackupEnvelopes({accountId: accountId, envelopes: envelopes})
 	},
 	getBackupAccounts({commit}) {
 		return getBackupAccounts().then(accounts => {
