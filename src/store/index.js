@@ -30,6 +30,9 @@ import {UNIFIED_ACCOUNT_ID, UNIFIED_INBOX_ID, UNIFIED_INBOX_UID} from './constan
 import actions from './actions'
 import mutations from './mutations'
 
+import {backup} from './backup/index'
+import * as lodash from 'lodash'
+
 Vue.use(Vuex)
 
 export const getters = {
@@ -78,9 +81,6 @@ export const getters = {
 	getMessageByUid: state => uid => {
 		return state.messages[uid]
 	},
-	getFilters: state => accountId => {
-		return state.filters[accountId]
-	},
 	isBackupEnabled: state => accountId => {
 		// TODO
 		const account = state.accounts[accountId]
@@ -92,10 +92,21 @@ export const getters = {
 	getBackupMails: state => () => {
 		return state.backupMails
 	},
+	getBackupAccounts: state => () => {
+		return state.backupAccounts
+	},
+	getBackupAccount: state => () => {
+		return lodash(state.backupAccounts)
+			.values()
+			.first()
+	},
 }
 
 export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
+	modules: {
+		backup,
+	},
 	state: {
 		preferences: {},
 		accounts: {
@@ -124,7 +135,6 @@ export default new Vuex.Store({
 		},
 		envelopes: {},
 		messages: {},
-		filters: {},
 		backupMails: {},
 		backupAccounts: {},
 		autocompleteEntries: [],

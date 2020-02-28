@@ -1,6 +1,5 @@
 import {generateUrl} from '@nextcloud/router'
 import Axios from '@nextcloud/axios'
-import {filterToText} from '../util/Filter'
 
 // Accounts
 export const getBackupAccounts = () => {
@@ -32,18 +31,10 @@ export const deleteBackupFolders = accountId => {
 	return Axios.delete(url).then(resp => resp.data)
 }
 
-// filters
-export const getAllFilters = accountId => {
-	const url = generateUrl('/apps/backupmail/api/filter')
-	return Axios.get(url)
-		.then(resp => resp.data)
-		.then(filters => filters.map(filterToText))
-}
-export const getFilters = accountId => {
-	const url = generateUrl('/apps/backupmail/api/filter/byAccount/{accountId}/external', {accountId: accountId})
-	return Axios.get(url)
-		.then(resp => resp.data)
-		.then(filters => filters.map(filterToText))
+// ClientFilters
+export const getClientCaseFiltersByAccount = accountId => {
+	const url = generateUrl('/apps/backupmail/api/case/byAccount/{accountId}', {accountId: accountId})
+	return Axios.get(url).then(resp => resp.data)
 }
 
 // envelopes

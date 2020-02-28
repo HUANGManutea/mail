@@ -50,7 +50,6 @@ import {
 } from '../service/MessageService'
 import {
 	getBackupAccounts,
-	getFilters,
 	createBackupAccount,
 	deleteBackupAccount,
 	createBackupFolders,
@@ -530,12 +529,6 @@ export default {
 				})
 				throw err
 			})
-	},
-	getFilters({getters, commit}, accountId) {
-		return getFilters(accountId).then(filters => {
-			commit('setFilters', {accountId: accountId, filters: filters})
-			return getters.getFilters(accountId)
-		})
 	},
 	createBackupAccount({commit}, {accountId, email}) {
 		return createBackupAccount({accountId: accountId, email: email})

@@ -89,7 +89,7 @@
 			</Multiselect>
 		</div>
 		<div class="composer-fields">
-			<BackupMessageExtender v-model="selectedFilter" />
+			<BackupNewMessageClientFilter v-model="selectedFilter" />
 			<label for="subject" class="subject-label hidden-visually">
 				{{ t('mail', 'Subject') }}
 			</label>
@@ -200,7 +200,7 @@ import {htmlToText, textToSimpleHtml} from '../util/HtmlHelper'
 import Loading from './Loading'
 import logger from '../logger'
 import TextEditor from './TextEditor'
-import BackupMessageExtender from './backup/BackupMessageExtender'
+import BackupNewMessageClientFilter from './backup/BackupNewMessageClientFilter'
 
 const debouncedSearch = debouncePromise(findRecipient, 500)
 
@@ -224,7 +224,7 @@ export default {
 		Loading,
 		Multiselect,
 		TextEditor,
-		BackupMessageExtender,
+		BackupNewMessageClientFilter,
 	},
 	props: {
 		fromAccount: {

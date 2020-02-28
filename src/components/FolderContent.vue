@@ -14,17 +14,7 @@
 							:multiple="false"
 							:placeholder="t('mail', 'Select Saved')"
 						/>
-						<Multiselect
-							v-model="selectedFilters"
-							:options="selectableFilters"
-							track-by="id"
-							label="text"
-							:multiple="true"
-							:placeholder="t('mail', 'Select Filter')"
-							:show-no-options="true"
-						>
-							<span slot="noOptions">{{ t('mail', 'No filter available') }}</span>
-						</Multiselect>
+						<ClientFilter v-model="selectedCaseFilters" :multiple="true" />
 					</div>
 					<EnvelopeList
 						:account="account"
@@ -54,6 +44,7 @@ import Logger from '../logger'
 import Message from './Message'
 import NewMessageDetail from './NewMessageDetail'
 import NoMessageSelected from './NoMessageSelected'
+import ClientFilter from './backup/ClientFilter'
 
 import * as lodash from 'lodash'
 
@@ -68,6 +59,7 @@ export default {
 		NewMessageDetail,
 		NoMessageSelected,
 		Multiselect,
+		ClientFilter,
 	},
 	mixins: [isMobile],
 	props: {
@@ -85,7 +77,7 @@ export default {
 			loading: true,
 			searchQuery: undefined,
 			alive: false,
-			selectedFilters: null,
+			selectedCaseFilters: null,
 			selectedSaved: null,
 			selectableSaved: [
 				{id: 0, label: t('mail', 'Saved'), value: true},
@@ -94,6 +86,9 @@ export default {
 		}
 	},
 	computed: {
+		getFilterFromId() {
+			return this.$store.getters['backup/getFilterFromId']
+		},
 		hasMessages() {
 			// it actually should be `return this.$store.getters.getEnvelopes(this.account.id, this.folder.id).length > 0`
 			// but for some reason Vue doesn't track the dependencies on reactive data then and messages in subfolders can't
@@ -126,11 +121,17 @@ export default {
 					}
 				}
 				// add filter on subject
-				if (!lodash.isEmpty(this.selectedFilters)) {
+				// TODO remove filtering from computed property for performances
+				if (!lodash.isEmpty(this.selectedCaseFilters)) {
 					allFilters.push(envelope => {
 						let filtered = false
-						this.selectedFilters.forEach(filter => {
-							filtered = filtered || envelope.subject.includes(filter.text)
+						console.log(this.selectedCaseFilters)
+						this.selectedCaseFilters.forEach(caseFilterId => {
+							const filter = this.getFilterFromId({
+								accountId: this.account.id,
+								caseFilterId: caseFilterId,
+							})
+							filtered = filtered || envelope.subject.includes(filter)
 						})
 						return filtered
 					})
@@ -170,9 +171,6 @@ export default {
 					return this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
 				}
 			}
-		},
-		selectableFilters() {
-			return this.$store.getters.getFilters(this.account.id)
 		},
 		backupEnabled() {
 			return this.$store.getters.isBackupEnabled(this.account.id)
@@ -216,7 +214,7 @@ export default {
 									folderId: this.folder.id,
 								})
 							})
-							.then(() => this.$store.dispatch('getFilters', this.account.id))
+							.then(() => this.$store.dispatch('backup/getClientCaseFilters', this.account.id))
 					}
 				})
 				.then(() => {
@@ -276,5 +274,6 @@ export default {
 .folder-content-header {
 	display: flex;
 	flex-direction: row;
+	max-width: 300px;
 }
 </style>
