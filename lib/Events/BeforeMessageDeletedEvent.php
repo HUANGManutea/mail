@@ -37,10 +37,10 @@ class BeforeMessageDeletedEvent extends Event {
 	/** @var int */
 	private $messageId;
 
-	public function __construct(Account $account, string $folderId, int $messageId) {
+	public function __construct(Account $account, string $mailbox, int $messageId) {
 		parent::__construct();
 		$this->account = $account;
-		$this->folderId = $folderId;
+		$this->folderId = $mailbox;
 		$this->messageId = $messageId;
 	}
 

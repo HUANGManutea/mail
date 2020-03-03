@@ -24,18 +24,34 @@
 namespace OCA\Mail\Contracts;
 
 use OCA\Mail\Account;
+use OCA\Mail\Db\Message;
+use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\ServiceException;
-use OCA\Mail\Model\IMAPMessage;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 interface IMailSearch {
 
 	/**
 	 * @param Account $account
 	 * @param string $mailboxName
-	 * @param string|null $filter
-	 * @param string|null $cursor
+	 * @param int $uid
 	 *
-	 * @return IMAPMessage[]
+	 * @return Message
+	 * @throws DoesNotExistException
+	 * @throws ClientException
+	 * @throws ServiceException
+	 */
+	public function findMessage(Account $account, string $mailboxName, int $uid): Message;
+
+	/**
+	 * @param Account $account
+	 * @param string $mailboxName
+	 * @param string|null $filter
+	 * @param int|null $cursor
+	 *
+	 * @return Message[]
+	 *
+	 * @throws ClientException
 	 * @throws ServiceException
 	 */
 	public function findMessages(Account $account, string $mailboxName, ?string $filter, ?int $cursor): array;

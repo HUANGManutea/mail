@@ -66,7 +66,7 @@ class MailboxSync {
 		$this->logger = $logger;
 	}
 
-	public function sync(Account $account, $force = false): void {
+	public function sync(Account $account, bool $force = false): void {
 		if (!$force && $account->getMailAccount()->getLastMailboxSync() >= ($this->timeFactory->getTime() - 7200)) {
 			$this->logger->debug("account is up to date, skipping mailbox sync");
 			return;
@@ -115,7 +115,6 @@ class MailboxSync {
 
 	private function updateMailboxFromFolder(Folder $folder, Mailbox $mailbox): void {
 		$mailbox->setDelimiter($folder->getDelimiter());
-		$mailbox->setSyncToken($folder->getSyncToken());
 		$mailbox->setAttributes(json_encode($folder->getAttributes()));
 		$mailbox->setDelimiter($folder->getDelimiter());
 		$mailbox->setMessages(0); // TODO
@@ -129,7 +128,6 @@ class MailboxSync {
 		$mailbox = new Mailbox();
 		$mailbox->setName($folder->getMailbox());
 		$mailbox->setAccountId($account->getId());
-		$mailbox->setSyncToken($folder->getSyncToken());
 		$mailbox->setAttributes(json_encode($folder->getAttributes()));
 		$mailbox->setDelimiter($folder->getDelimiter());
 		$mailbox->setMessages(0); // TODO

@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 /**
- * @copyright 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @copyright 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
- * @author 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @author 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -23,17 +23,28 @@ declare(strict_types=1);
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace OCA\Mail\Http;
+namespace OCA\Mail\IMAP;
 
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\JSONResponse;
+class MessageStructureData {
 
-class JSONErrorResponse extends JSONResponse {
+	/** @var bool */
+	private $hasAttachments;
 
-	public function __construct($data = array(), int $statusCode = Http::STATUS_OK) {
-		parent::__construct($data, $statusCode);
+	/** @var string */
+	private $previewText;
 
-		$this->addHeader('x-mail-error', 'true');
+	public function __construct(bool $hasAttachments,
+								string $previewText) {
+		$this->hasAttachments = $hasAttachments;
+		$this->previewText = $previewText;
+	}
+
+	public function hasAttachments(): bool {
+		return $this->hasAttachments;
+	}
+
+	public function getPreviewText(): string {
+		return $this->previewText;
 	}
 
 }

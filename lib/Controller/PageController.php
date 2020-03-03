@@ -132,6 +132,7 @@ class PageController extends Controller {
 				'accounts' => base64_encode(json_encode($accountsJson)),
 				'external-avatars' => $this->preferences->getPreference('external-avatars', 'true'),
 				'backup-location' => $this->preferences->getPreference('backup-location', null),
+				'collect-data' => $this->preferences->getPreference('collect-data', 'true'),
 			]);
 		$this->initialStateService->provideInitialState(
 			Application::APP_ID,

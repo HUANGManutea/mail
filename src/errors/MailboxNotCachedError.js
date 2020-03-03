@@ -1,7 +1,7 @@
 /*
- * @copyright 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @copyright 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
- * @author 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @author 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -19,18 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class IndefinableValue {
-	constructor(value) {
-		this.value = value
+export default class MailboxNotCachedError extends Error {
+	constructor(message) {
+		super(message)
+		this.name = MailboxNotCachedError.getName()
+		this.message = message
 	}
 
-	or(other) {
-		if (this.value === undefined) {
-			return other
-		} else {
-			return this.value
-		}
+	static getName() {
+		return 'MailboxNotCachedError'
 	}
 }
-
-export const value = value => new IndefinableValue(value)

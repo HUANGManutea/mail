@@ -11,6 +11,7 @@ OC.L10N.register(
     "Upload attachment" : "Tải lên một đính kèm",
     "Go back" : "Quay lại",
     "Send" : "Gởi",
+    "Favorite" : "Ưa thích",
     "Delete" : "Xóa",
     "Reply" : "Trả l",
     "Settings" : "Thiết lập",
@@ -22,6 +23,11 @@ OC.L10N.register(
     "Host" : "Máy chủ",
     "Port" : "Cổng",
     "Search" : "Tìm",
-    "Refresh" : "Làm mới"
+    "Refresh" : "Làm mới",
+    "All" : "Tất cả",
+    "Archive" : "Lưu trữ",
+    "Favorites" : "Ưa thích",
+    "Sent" : "Đã gửi",
+    "Trash" : "Thùng rác"
 },
 "nplurals=1; plural=0;");

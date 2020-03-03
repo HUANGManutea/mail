@@ -13,6 +13,7 @@ OC.L10N.register(
     "Sending …" : "Göndərilir...",
     "Send" : "Göndər",
     "Choose a file to add as attachment" : "Əlavə ediləcək faylı seçin",
+    "Favorite" : "İstəkli",
     "Delete" : "Sil",
     "Reply" : "Cavab",
     "Choose a folder to store the attachment in" : "Əlavələrin saxlanılması üçün qovluğu seçin",
@@ -26,6 +27,14 @@ OC.L10N.register(
     "Port" : "Port",
     "Search" : "Axtarış",
     "Refresh" : "Yenilə",
+    "All" : "Hamısı",
+    "Archive" : "Arxiv",
+    "Drafts" : "Qaralamalar",
+    "Favorites" : "Sevimlilər",
+    "Inbox" : "Gələn qutusu",
+    "Junk" : "Önəmsiz",
+    "Sent" : "Göndərildi",
+    "Trash" : "Zibil",
     "Error loading message" : "Mesajın yüklənməsində səhv baş verdi"
 },
 "nplurals=2; plural=(n != 1);");

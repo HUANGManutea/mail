@@ -27,20 +27,20 @@ declare(strict_types=1);
 namespace OCA\Mail\Http\Middleware;
 
 use Exception;
+use Horde_Imap_Client_Exception;
 use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\NotImplemented;
-use OCA\Mail\Http\JSONErrorResponse;
+use OCA\Mail\Exception\ServiceException;
+use OCA\Mail\Http\JsonResponse;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Middleware;
 use OCP\AppFramework\Utility\IControllerMethodReflector;
 use OCP\IConfig;
 use OCP\ILogger;
 use Throwable;
-use function get_class;
 
 class ErrorMiddleware extends Middleware {
 
@@ -79,46 +79,55 @@ class ErrorMiddleware extends Middleware {
 		}
 
 		if ($exception instanceof ClientException) {
-			return new JSONErrorResponse([
-				'message' => $exception->getMessage()
-			], Http::STATUS_BAD_REQUEST);
-		} else if ($exception instanceof DoesNotExistException) {
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
-		} else if ($exception instanceof NotImplemented) {
-			return new JSONResponse([], Http::STATUS_NOT_IMPLEMENTED);
-		} else {
-			$this->logger->logException($exception);
-			if ($this->config->getSystemValue('debug', false)) {
-				return new JSONErrorResponse(array_merge(
-					[
-						'debug' => true,
-					],
-					$this->serializeException($exception)
-				), Http::STATUS_INTERNAL_SERVER_ERROR);
-			}
-
-			return new JSONErrorResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
+			return JsonResponse::failWith($exception);
 		}
+
+		if ($exception instanceof DoesNotExistException) {
+			return JSONResponse::fail([], Http::STATUS_NOT_FOUND);
+		}
+
+		if ($exception instanceof NotImplemented) {
+			return JSONResponse::fail([], Http::STATUS_NOT_IMPLEMENTED);
+		}
+
+		$temporary = $this->isTemporaryException($exception);
+		$this->logger->logException($exception, [
+			'level' => $temporary ? ILogger::WARN : ILogger::ERROR,
+		]);
+		if ($this->config->getSystemValue('debug', false)) {
+			return JsonResponse::errorFromThrowable(
+				$exception,
+				$temporary ? Http::STATUS_SERVICE_UNAVAILABLE : Http::STATUS_INTERNAL_SERVER_ERROR,
+				[
+					'debug' => true,
+				]
+			);
+		}
+
+		return JsonResponse::error(
+			"Server error",
+			$temporary ? Http::STATUS_SERVICE_UNAVAILABLE : Http::STATUS_INTERNAL_SERVER_ERROR
+		);
 	}
 
-	private function serializeException(?Throwable $throwable): ?array {
-		if ($throwable === null) {
-			return null;
+	private function isTemporaryException(Throwable $ex): bool {
+		if ($ex instanceof ServiceException && $ex->getPrevious() !== null) {
+			$ex = $ex->getPrevious();
 		}
-		return [
-			'type' => get_class($throwable),
-			'message' => $throwable->getMessage(),
-			'code' => $throwable->getCode(),
-			'trace' => $this->filterTrace($throwable->getTrace()),
-			'previous' => $this->serializeException($throwable->getPrevious()),
-		];
-	}
 
-	private function filterTrace(array $original): array {
-		return array_map(function (array $row) {
-			return array_intersect_key($row,
-				array_flip(['file', 'line', 'function', 'class']));
-		}, $original);
+		if ($ex instanceof Horde_Imap_Client_Exception) {
+			return in_array(
+				$ex->getCode(),
+				[
+					Horde_Imap_Client_Exception::DISCONNECT,
+					Horde_Imap_Client_Exception::SERVER_READERROR,
+					Horde_Imap_Client_Exception::SERVER_WRITEERROR,
+				],
+				true
+			);
+		}
+
+		return false;
 	}
 
 }

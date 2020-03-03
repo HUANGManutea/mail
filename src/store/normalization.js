@@ -1,9 +1,7 @@
-<?php declare(strict_types=1);
-
-/**
- * @copyright 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
+/*
+ * @copyright 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
- * @author 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @author 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -21,16 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace OCA\Mail\IMAP\Search;
+import {curry, defaultTo} from 'ramda'
 
-use Horde_Imap_Client_Exception;
-use Horde_Imap_Client_Ids;
+export const normalizedFolderId = curry((accountId, folderId) => {
+	return `${accountId}-${folderId}`
+})
 
-interface ISearchStrategy {
+export const normalizedMessageId = curry((accountId, folderId, messageId) => {
+	return `${accountId}-${folderId}-${messageId}`
+})
 
-	/**
-	 * @throws Horde_Imap_Client_Exception
-	 */
-	public function getIds(int $maxResults, array $flags = []): Horde_Imap_Client_Ids;
-
-}
+export const normalizedEnvelopeListId = defaultTo('')

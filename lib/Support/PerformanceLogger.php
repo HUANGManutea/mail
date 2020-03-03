@@ -1,4 +1,6 @@
-/*
+<?php declare(strict_types=1);
+
+/**
  * @copyright 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
  * @author 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
@@ -19,29 +21,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {translate} from '../../../l10n/MailboxTranslator'
+namespace OCA\Mail\Support;
 
-describe('MailboxTranslator', () => {
-	it('translates the inbox', () => {
-		const folder = {
-			id: btoa('INBOX'),
-			specialUse: ['inbox'],
-		}
+use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\ILogger;
 
-		const name = translate(folder)
+class PerformanceLogger {
 
-		expect(name).to.equal('Inbox')
-	})
+	/** @var ITimeFactory */
+	private $timeFactory;
 
-	it('does not translate an arbitrary mailbox', () => {
-		const folder = {
-			id: btoa('Newsletters'),
-			displayName: 'Newsletters',
-			specialUse: [],
-		}
+	/** @var ILogger */
+	private $logger;
 
-		const name = translate(folder)
+	public function __construct(ITimeFactory $timeFactory,
+								ILogger $logger) {
+		$this->timeFactory = $timeFactory;
+		$this->logger = $logger;
+	}
 
-		expect(name).to.equal('Newsletters')
-	})
-})
+	public function start(string $task): PerformanceLoggerTask {
+		return new PerformanceLoggerTask(
+			$task,
+			$this->timeFactory,
+			$this->logger
+		);
+	}
+
+}

@@ -10,8 +10,10 @@ OC.L10N.register(
     "Select account" : "Account auswielen",
     "Go back" : "Zeréckgoen",
     "Send" : "Schécken",
+    "Favorite" : "Favorit",
     "Delete" : "Läschen",
     "Reply" : "Äntwerten",
+    "Unnamed" : "ouni Numm",
     "Settings" : "Astellungen",
     "Add folder" : "Add folder",
     "Delete account" : "Delete account",
@@ -20,6 +22,8 @@ OC.L10N.register(
     "Host" : "Host",
     "Port" : "Port",
     "Search" : "Search",
-    "Refresh" : "Opfrëschen"
+    "Refresh" : "Opfrëschen",
+    "All" : "All",
+    "Favorites" : "Favoriten"
 },
 "nplurals=2; plural=(n != 1);");

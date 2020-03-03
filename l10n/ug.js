@@ -7,6 +7,7 @@ OC.L10N.register(
     "Save" : "ساقلا",
     "Connect" : "باغلان",
     "Send" : "يوللا",
+    "Favorite" : "يىغقۇچ",
     "Delete" : "ئۆچۈر",
     "Reply" : "جاۋاب قايتۇر",
     "Settings" : "تەڭشەكلەر",
@@ -17,6 +18,8 @@ OC.L10N.register(
     "Host" : "باش ئاپپارات",
     "Port" : "ئېغىز",
     "Search" : "Search",
-    "Refresh" : "يېڭىلا"
+    "Refresh" : "يېڭىلا",
+    "All" : "ھەممىسى",
+    "Favorites" : "يىغقۇچ"
 },
 "nplurals=1; plural=0;");

@@ -10,6 +10,7 @@ OC.L10N.register(
     "Keyboard shortcuts" : "Tastatursnarvegar",
     "Retry" : "Forsøk att",
     "Send" : "Send",
+    "Favorite" : "Favoritt",
     "Delete" : "Ta bort",
     "Settings" : "Instillingar",
     "Add folder" : "Add folder",
@@ -19,6 +20,9 @@ OC.L10N.register(
     "User" : "Bruker",
     "Host" : "Tenar",
     "Search" : "Search",
-    "Refresh" : "Last inn på nytt"
+    "Refresh" : "Last inn på nytt",
+    "All" : "Alle",
+    "Favorites" : "Favorit",
+    "Sent" : "Sendt"
 },
 "nplurals=2; plural=(n != 1);");

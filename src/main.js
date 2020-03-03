@@ -67,6 +67,10 @@ store.commit('savePreference', {
 	key: 'backup-location',
 	value: getPreferenceFromPage('backup-location'),
 })
+store.commit('savePreference', {
+	key: 'collect-data',
+	value: getPreferenceFromPage('collect-data'),
+})
 
 const accounts = JSON.parse(atob(getPreferenceFromPage('serialized-accounts')))
 accounts.map(fixAccountId).forEach(account => {

@@ -34,9 +34,6 @@ use OCA\Mail\IMAP\FolderStats;
 use OCA\Mail\IMAP\IMAPClientFactory;
 use OCA\Mail\IMAP\MailboxSync;
 use OCA\Mail\IMAP\MessageMapper;
-use OCA\Mail\IMAP\Sync\Request;
-use OCA\Mail\IMAP\Sync\Response;
-use OCA\Mail\IMAP\Sync\Synchronizer;
 use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -59,9 +56,6 @@ class MailManagerTest extends TestCase {
 	/** @var MessageMapper|MockObject */
 	private $messageMapper;
 
-	/** @var Synchronizer|MockObject */
-	private $sync;
-
 	/** @var IEventDispatcher|MockObject */
 	private $eventDispatcher;
 
@@ -73,10 +67,9 @@ class MailManagerTest extends TestCase {
 
 		$this->imapClientFactory = $this->createMock(IMAPClientFactory::class);
 		$this->mailboxMapper = $this->createMock(MailboxMapper::class);
-		$this->mailboxSync = $this->createMock(MailboxSync::class);
 		$this->folderMapper = $this->createMock(FolderMapper::class);
 		$this->messageMapper = $this->createMock(MessageMapper::class);
-		$this->sync = $this->createMock(Synchronizer::class);
+		$this->mailboxSync = $this->createMock(MailboxSync::class);
 		$this->eventDispatcher = $this->createMock(IEventDispatcher::class);
 
 		$this->manager = new MailManager(
@@ -84,7 +77,6 @@ class MailManagerTest extends TestCase {
 			$this->mailboxMapper,
 			$this->mailboxSync,
 			$this->folderMapper,
-			$this->sync,
 			$this->messageMapper,
 			$this->eventDispatcher
 		);
@@ -156,22 +148,6 @@ class MailManagerTest extends TestCase {
 		$this->assertEquals($stats, $actual);
 	}
 
-	public function testSync() {
-		$account = $this->createMock(Account::class);
-		$syncRequest = $this->createMock(Request::class);
-		$syncResonse = $this->createMock(Response::class);
-		$client = $this->createMock(Horde_Imap_Client_Socket::class);
-		$this->imapClientFactory->expects($this->once())
-			->method('getClient')
-			->willReturn($client);
-		$this->sync->expects($this->once())
-			->method('sync')
-			->with($client, $syncRequest)
-			->willReturn($syncResonse);
-
-		$this->manager->syncMessages($account, $syncRequest);
-	}
-
 	public function testDeleteMessageSourceFolderNotFound(): void {
 		/** @var Account|MockObject $account */
 		$account = $this->createMock(Account::class);
@@ -227,12 +203,8 @@ class MailManagerTest extends TestCase {
 		$inbox->setName('INBOX');
 		$trash = new Mailbox();
 		$trash->setName('Trash');
-		$this->eventDispatcher->expects($this->once())
-			->method('dispatch')
-			->with(
-				$this->equalTo(BeforeMessageDeletedEvent::class),
-				$this->anything()
-			);
+		$this->eventDispatcher->expects($this->exactly(2))
+			->method('dispatch');
 		$this->mailboxMapper->expects($this->once())
 			->method('find')
 			->with($account, 'INBOX')
@@ -268,12 +240,8 @@ class MailManagerTest extends TestCase {
 		$source->setName('Trash');
 		$trash = new Mailbox();
 		$trash->setName('Trash');
-		$this->eventDispatcher->expects($this->once())
-			->method('dispatch')
-			->with(
-				$this->equalTo(BeforeMessageDeletedEvent::class),
-				$this->anything()
-			);
+		$this->eventDispatcher->expects($this->exactly(2))
+			->method('dispatch');
 		$this->mailboxMapper->expects($this->once())
 			->method('find')
 			->with($account, 'Trash')

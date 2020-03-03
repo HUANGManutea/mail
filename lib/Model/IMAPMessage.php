@@ -48,6 +48,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Files\File;
 use OCP\Files\SimpleFS\ISimpleFile;
 use function base64_encode;
+use function json_encode;
 use function mb_convert_encoding;
 
 class IMAPMessage implements IMessage, JsonSerializable {
@@ -69,6 +70,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	 * @param Horde_Imap_Client_Data_Fetch|null $fetch
 	 * @param bool $loadHtmlMessage
 	 * @param Html|null $htmlService
+	 *
 	 * @throws DoesNotExistException
 	 */
 	public function __construct($conn,
@@ -145,7 +147,10 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param array $flags
+	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function setFlags(array $flags) {
 		// TODO: implement
@@ -168,7 +173,10 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param AddressList $from
+	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function setFrom(AddressList $from) {
 		throw new Exception('IMAP message is immutable');
@@ -183,7 +191,10 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param AddressList $to
+	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function setTo(AddressList $to) {
 		throw new Exception('IMAP message is immutable');
@@ -198,7 +209,10 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param AddressList $cc
+	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function setCC(AddressList $cc) {
 		throw new Exception('IMAP message is immutable');
@@ -213,7 +227,10 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param AddressList $bcc
+	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function setBcc(AddressList $bcc) {
 		throw new Exception('IMAP message is immutable');
@@ -237,7 +254,10 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param string $subject
+	 *
 	 * @throws Exception
+	 *
+	 * @return void
 	 */
 	public function setSubject(string $subject) {
 		throw new Exception('IMAP message is immutable');
@@ -259,6 +279,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param Horde_Mime_Part $part
+	 *
 	 * @return bool
 	 */
 	private function hasAttachments($part) {
@@ -286,7 +307,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 		return false;
 	}
 
-	private function loadMessageBodies() {
+	private function loadMessageBodies(): void {
 		$fetch_query = new Horde_Imap_Client_Fetch_Query();
 		$fetch_query->envelope();
 		$fetch_query->structure();
@@ -319,7 +340,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 		} else {
 			if (!is_null($structure->findBody())) {
 				// get the body from the server
-				$partId = (int) $structure->findBody();
+				$partId = (int)$structure->findBody();
 				$this->getPart($structure->getPart($partId), $partId);
 			}
 		}
@@ -328,9 +349,12 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	/**
 	 * @param Horde_Mime_Part $p
 	 * @param mixed $partNo
+	 *
 	 * @throws DoesNotExistException
+	 *
+	 * @return void
 	 */
-	private function getPart(Horde_Mime_Part $p, $partNo) {
+	private function getPart(Horde_Mime_Part $p, $partNo): void {
 		// ATTACHMENT
 		// Any part with a filename is an attachment,
 		// so an attached text file (type 0) is not mistaken as the message.
@@ -427,6 +451,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	 * @param int $accountId
 	 * @param string $folderId
 	 * @param int $messageId
+	 *
 	 * @return string
 	 */
 	public function getHtmlBody(int $accountId, string $folderId, int $messageId): string {
@@ -457,9 +482,12 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	/**
 	 * @param Horde_Mime_Part $part
 	 * @param mixed $partNo
+	 *
 	 * @throws DoesNotExistException
+	 *
+	 * @return void
 	 */
-	private function handleMultiPartMessage(Horde_Mime_Part $part, $partNo) {
+	private function handleMultiPartMessage(Horde_Mime_Part $part, $partNo): void {
 		$i = 1;
 		foreach ($part->getParts() as $p) {
 			$this->getPart($p, "$partNo.$i");
@@ -470,9 +498,12 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	/**
 	 * @param Horde_Mime_Part $p
 	 * @param mixed $partNo
+	 *
 	 * @throws DoesNotExistException
+	 *
+	 * @return void
 	 */
-	private function handleTextMessage(Horde_Mime_Part $p, $partNo) {
+	private function handleTextMessage(Horde_Mime_Part $p, $partNo): void {
 		$data = $this->loadBodyData($p, $partNo);
 		$this->plainMessage .= trim($data) . "\n\n";
 	}
@@ -480,9 +511,12 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	/**
 	 * @param Horde_Mime_Part $p
 	 * @param mixed $partNo
+	 *
 	 * @throws DoesNotExistException
+	 *
+	 * @return void
 	 */
-	private function handleHtmlMessage(Horde_Mime_Part $p, $partNo) {
+	private function handleHtmlMessage(Horde_Mime_Part $p, $partNo): void {
 		$this->hasHtmlMessage = true;
 		if ($this->loadHtmlMessage) {
 			$data = $this->loadBodyData($p, $partNo);
@@ -493,6 +527,7 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	/**
 	 * @param Horde_Mime_Part $p
 	 * @param mixed $partNo
+	 *
 	 * @return string
 	 * @throws DoesNotExistException
 	 * @throws Exception
@@ -535,6 +570,9 @@ class IMAPMessage implements IMessage, JsonSerializable {
 		return $this->getPlainBody();
 	}
 
+	/**
+	 * @return void
+	 */
 	public function setContent(string $content) {
 		throw new Exception('IMAP message is immutable');
 	}
@@ -555,6 +593,8 @@ class IMAPMessage implements IMessage, JsonSerializable {
 
 	/**
 	 * @param File $file
+	 *
+	 * @return void
 	 */
 	public function addAttachmentFromFiles(File $file) {
 		throw new Exception('IMAP message is immutable');
@@ -563,6 +603,8 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	/**
 	 * @param LocalAttachment $attachment
 	 * @param ISimpleFile $file
+	 *
+	 * @return void
 	 */
 	public function addLocalAttachment(LocalAttachment $attachment, ISimpleFile $file) {
 		throw new Exception('IMAP message is immutable');
@@ -576,10 +618,39 @@ class IMAPMessage implements IMessage, JsonSerializable {
 	}
 
 	/**
-	 * @param IMessage $message
+	 * @param string $message
+	 *
+	 * @return void
 	 */
 	public function setInReplyTo(string $message) {
 		throw new Exception('not implemented');
+	}
+
+	public function toDbMessage(int $mailboxId): \OCA\Mail\Db\Message {
+		$msg = new \OCA\Mail\Db\Message();
+
+		$msg->setUid($this->getUid());
+		$msg->setMessageId($this->getMessageId());
+		$msg->setMailboxId($mailboxId);
+		$msg->setFrom($this->getFrom());
+		$msg->setTo($this->getTo());
+		$msg->setCc($this->getCc());
+		$msg->setBcc($this->getBcc());
+		$msg->setSubject(mb_substr($this->getSubject(), 0, 255));
+		$msg->setSentAt($this->getSentDate()->getTimestamp());
+
+		$flags = $this->fetch->getFlags();
+		$msg->setFlagAnswered(in_array(Horde_Imap_Client::FLAG_ANSWERED, $flags, true));
+		$msg->setFlagDeleted(in_array(Horde_Imap_Client::FLAG_DELETED, $flags, true));
+		$msg->setFlagDraft(in_array(Horde_Imap_Client::FLAG_DRAFT, $flags, true));
+		$msg->setFlagFlagged(in_array(Horde_Imap_Client::FLAG_FLAGGED, $flags, true));
+		$msg->setFlagSeen(in_array(Horde_Imap_Client::FLAG_SEEN, $flags, true));
+		$msg->setFlagForwarded(in_array(Horde_Imap_Client::FLAG_FORWARDED, $flags, true));
+		$msg->setFlagJunk(in_array(Horde_Imap_Client::FLAG_JUNK, $flags, true));
+		$msg->setFlagNotjunk(in_array(Horde_Imap_Client::FLAG_NOTJUNK, $flags, true));
+		$msg->setFlagAttachments(false);
+
+		return $msg;
 	}
 
 }

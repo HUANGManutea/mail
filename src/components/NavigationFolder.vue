@@ -32,13 +32,17 @@
 		<!-- actions -->
 		<template slot="actions">
 			<template v-if="top">
-				<ActionText v-if="!account.isUnified" icon="icon-info" :title="folderId">
+				<ActionText
+					v-if="!account.isUnified && folder.specialRole !== 'flagged'"
+					icon="icon-info"
+					:title="folderId"
+				>
 					{{ statsText }}
 				</ActionText>
 
 				<!-- TODO: make *mark as read* available for all folders once there is more than one action -->
 				<ActionButton
-					v-if="!account.isUnified"
+					v-if="!account.isUnified && folder.specialRole !== 'flagged'"
 					icon="icon-checkmark"
 					:title="t('mail', 'Mark all as read')"
 					:disabled="loadingMarkAsRead"
@@ -47,7 +51,11 @@
 					{{ t('mail', 'Mark all messages of this folder as read') }}
 				</ActionButton>
 
-				<ActionInput v-if="!account.isUnified" icon="icon-add" @submit="createFolder">
+				<ActionInput
+					v-if="!account.isUnified && folder.specialRole !== 'flagged'"
+					icon="icon-add"
+					@submit="createFolder"
+				>
 					{{ t('mail', 'Add subfolder') }}
 				</ActionInput>
 			</template>
@@ -76,7 +84,8 @@ import ActionText from '@nextcloud/vue/dist/Components/ActionText'
 
 import {getFolderStats} from '../service/FolderService'
 import logger from '../logger'
-import {translate as translateMailboxName} from '../l10n/MailboxTranslator'
+import {translatePlural as n} from '@nextcloud/l10n'
+import {translate as translateMailboxName} from '../i18n/MailboxTranslator'
 
 export default {
 	name: 'NavigationFolder',
@@ -132,14 +141,20 @@ export default {
 		statsText() {
 			if (this.folderStats && 'total' in this.folderStats && 'unread' in this.folderStats) {
 				if (this.folderStats.unread === 0) {
-					return n('mail', '{total} message', '{total} messages', {
+					return n('mail', '{total} message', '{total} messages', this.folderStats.total, {
 						total: this.folderStats.total,
 					})
 				} else {
-					return n('mail', '{unread} unread of {total}', '{unread} unread of {total}', {
-						total: this.folderStats.total,
-						unread: this.folderStats.unread,
-					})
+					return n(
+						'mail',
+						'{unread} unread of {total}',
+						'{unread} unread of {total}',
+						this.folderStats.unread,
+						{
+							total: this.folderStats.total,
+							unread: this.folderStats.unread,
+						}
+					)
 				}
 			}
 			return t('mail', 'Loading …')
@@ -168,6 +183,10 @@ export default {
 		 */
 		async fetchFolderStats() {
 			this.folderStats = null
+			if (this.account.isUnified || this.folder.specialRole === 'flagged') {
+				return
+			}
+
 			try {
 				const stats = await getFolderStats(this.account.id, this.folder.id)
 				logger.debug('loaded folder stats', {stats})

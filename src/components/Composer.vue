@@ -174,8 +174,7 @@
 		<button class="button primary" @click="onSend">{{ t('mail', 'Retry') }}</button>
 	</div>
 	<div v-else class="emptycontent">
-		<h2 v-if="!isReply">{{ t('mail', 'Message sent!') }}</h2>
-		<h2 v-else>{{ t('mail', 'Reply sent!') }}</h2>
+		<h2>{{ t('mail', 'Message sent!') }}</h2>
 		<button v-if="!isReply" class="button primary" @click="reset">
 			{{ t('mail', 'Write another message') }}
 		</button>
@@ -295,7 +294,9 @@ export default {
 			return this.$store.getters.accounts.filter(a => !a.isUnified)
 		},
 		selectableRecipients() {
-			return this.newRecipients.concat(this.autocompleteRecipients)
+			return this.newRecipients
+				.concat(this.autocompleteRecipients)
+				.map(recipient => ({...recipient, label: recipient.label || recipient.email}))
 		},
 		isReply() {
 			return this.to.length > 0
@@ -343,21 +344,19 @@ export default {
 				return `"${recipient.label}" <${recipient.email}>`
 			}
 		},
-		getMessageData() {
-			return uid => {
-				return {
-					account: this.selectedAlias.id,
-					to: this.selectTo.map(this.recipientToRfc822).join(', '),
-					cc: this.selectCc.map(this.recipientToRfc822).join(', '),
-					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
-					draftUID: uid,
-					subject: this.subjectVal,
-					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
-					attachments: this.attachments,
-					folderId: this.replyTo ? this.replyTo.folderId : undefined,
-					messageId: this.replyTo ? this.replyTo.messageId : undefined,
-					isHtml: !this.editorPlainText,
-				}
+		getMessageData(uid) {
+			return {
+				account: this.selectedAlias.id,
+				to: this.selectTo.map(this.recipientToRfc822).join(', '),
+				cc: this.selectCc.map(this.recipientToRfc822).join(', '),
+				bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
+				draftUID: uid,
+				subject: this.subjectVal,
+				body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
+				attachments: this.attachments,
+				folderId: this.replyTo ? this.replyTo.folderId : undefined,
+				messageId: this.replyTo ? this.replyTo.messageId : undefined,
+				isHtml: !this.editorPlainText,
 			}
 		},
 		saveDraft(data) {
@@ -371,7 +370,7 @@ export default {
 				})
 		},
 		onInputChanged() {
-			this.saveDraftDebounced(this.getMessageData())
+			this.saveDraftDebounced(this.getMessageData)
 		},
 		onAddLocalAttachment() {
 			this.bus.$emit('onAddLocalAttachment')
@@ -422,7 +421,7 @@ export default {
 			return this.attachmentsPromise
 				.then(() => (this.state = STATES.SENDING))
 				.then(() => this.draftsPromise)
-				.then(this.getMessageData())
+				.then(this.getMessageData)
 				.then(data => this.send(data))
 				.then(() => logger.info('message sent'))
 				.then(() => (this.state = STATES.FINISHED))

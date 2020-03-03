@@ -24,13 +24,12 @@ declare(strict_types=1);
 namespace OCA\Mail\Service;
 
 use Horde_Imap_Client_Exception;
-use Horde_Imap_Client_Exception_Sync;
 use OCA\Mail\Account;
 use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Events\BeforeMessageDeletedEvent;
-use OCA\Mail\Exception\ClientException;
+use OCA\Mail\Events\MessageDeletedEvent;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Folder;
 use OCA\Mail\IMAP\FolderMapper;
@@ -38,9 +37,6 @@ use OCA\Mail\IMAP\FolderStats;
 use OCA\Mail\IMAP\IMAPClientFactory;
 use OCA\Mail\IMAP\MailboxSync;
 use OCA\Mail\IMAP\MessageMapper;
-use OCA\Mail\IMAP\Sync\Request;
-use OCA\Mail\IMAP\Sync\Response;
-use OCA\Mail\IMAP\Sync\Synchronizer;
 use OCA\Mail\Model\IMAPMessage;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -59,9 +55,6 @@ class MailManager implements IMailManager {
 	/** @var FolderMapper */
 	private $folderMapper;
 
-	/** @var Synchronizer */
-	private $synchronizer;
-
 	/** @var MessageMapper */
 	private $messageMapper;
 
@@ -72,14 +65,12 @@ class MailManager implements IMailManager {
 								MailboxMapper $mailboxMapper,
 								MailboxSync $mailboxSync,
 								FolderMapper $folderMapper,
-								Synchronizer $synchronizer,
 								MessageMapper $messageMapper,
 								IEventDispatcher $eventDispatcher) {
 		$this->imapClientFactory = $imapClientFactory;
 		$this->mailboxMapper = $mailboxMapper;
 		$this->mailboxSync = $mailboxSync;
 		$this->folderMapper = $folderMapper;
-		$this->synchronizer = $synchronizer;
 		$this->messageMapper = $messageMapper;
 		$this->eventDispatcher = $eventDispatcher;
 	}
@@ -98,27 +89,6 @@ class MailManager implements IMailManager {
 			},
 			$this->mailboxMapper->findAll($account)
 		);
-	}
-
-	/**
-	 * @param Account $account
-	 * @param Request $syncRequest
-	 *
-	 * @return Response
-	 *
-	 * @throws ClientException
-	 * @throws ServiceException
-	 */
-	public function syncMessages(Account $account, Request $syncRequest): Response {
-		$client = $this->imapClientFactory->getClient($account);
-
-		try {
-			return $this->synchronizer->sync($client, $syncRequest);
-		} catch (Horde_Imap_Client_Exception $e) {
-			throw new ServiceException("Could not sync messages", 0, $e);
-		} catch (Horde_Imap_Client_Exception_Sync $e) {
-			throw new ClientException("Sync failed because of an invalid sync token or UID validity changed", 0, $e);
-		}
 	}
 
 	/**
@@ -175,6 +145,8 @@ class MailManager implements IMailManager {
 	 * @param string $destFolderId
 	 *
 	 * @throws ServiceException
+	 *
+	 * @return void
 	 */
 	public function moveMessage(Account $sourceAccount,
 								string $sourceFolderId,
@@ -207,31 +179,36 @@ class MailManager implements IMailManager {
 		);
 
 		try {
-			$sourceFolder = $this->mailboxMapper->find($account, $mailboxId);
+			$sourceMailbox = $this->mailboxMapper->find($account, $mailboxId);
 		} catch (DoesNotExistException $e) {
 			throw new ServiceException("Source mailbox $mailboxId does not exist", 0, $e);
 		}
 		try {
-			$trashFolder = $this->mailboxMapper->findSpecial($account, 'trash');
+			$trashMailbox = $this->mailboxMapper->findSpecial($account, 'trash');
 		} catch (DoesNotExistException $e) {
 			throw new ServiceException("No trash folder", 0, $e);
 		}
 
-		if ($mailboxId === $trashFolder->getName()) {
+		if ($mailboxId === $trashMailbox->getName()) {
 			// Delete inside trash -> expunge
 			$this->messageMapper->expunge(
 				$this->imapClientFactory->getClient($account),
-				$sourceFolder->getName(),
+				$sourceMailbox->getName(),
 				$messageId
 			);
 		} else {
 			$this->messageMapper->move(
 				$this->imapClientFactory->getClient($account),
-				$sourceFolder->getName(),
+				$sourceMailbox->getName(),
 				$messageId,
-				$trashFolder->getName()
+				$trashMailbox->getName()
 			);
 		}
+
+		$this->eventDispatcher->dispatch(
+			MessageDeletedEvent::class,
+			new MessageDeletedEvent($account, $sourceMailbox, $messageId)
+		);
 	}
 
 	/**
@@ -241,11 +218,13 @@ class MailManager implements IMailManager {
 	 * @param int $messageId
 	 *
 	 * @throws ServiceException
+	 *
+	 * @return void
 	 */
 	private function moveMessageOnSameAccount(Account $account,
 											  string $sourceFolderId,
 											  string $destFolderId,
-											  int $messageId) {
+											  int $messageId): void {
 		$client = $this->imapClientFactory->getClient($account);
 
 		$this->messageMapper->move($client, $sourceFolderId, $messageId, $destFolderId);

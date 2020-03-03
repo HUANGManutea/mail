@@ -34,3 +34,4 @@ script('mail', 'mail');
 <input type="hidden" id="serialized-accounts" value="<?php p($_['accounts']); ?>">
 <input type="hidden" id="external-avatars" value="<?php p($_['external-avatars']); ?>">
 <input type="hidden" id="backup-location" value="<?php p($_['backup-location']); ?>">
+<input type="hidden" id="collect-data" value="<?php p($_['collect-data']); ?>">

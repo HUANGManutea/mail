@@ -53,8 +53,10 @@ class AddressCollector {
 	 * Duplicates are ignored
 	 *
 	 * @param AddressList $addressList
+	 *
+	 * @return void
 	 */
-	public function addAddresses(AddressList $addressList) {
+	public function addAddresses(AddressList $addressList): void {
 		$this->logger->debug("collecting " . count($addressList) . " email addresses");
 		foreach ($addressList->iterate() as $address) {
 			/* @var $address Address */
@@ -64,8 +66,10 @@ class AddressCollector {
 
 	/**
 	 * @param Address $address
+	 *
+	 * @return void
 	 */
-	private function saveAddress(Address $address) {
+	private function saveAddress(Address $address): void {
 		try {
 			$hordeAddress = $address->toHorde();
 			if (!$hordeAddress->valid) {
@@ -76,7 +80,7 @@ class AddressCollector {
 			$this->logger->debug("<$address> is not a valid RFC822 mail address");
 			return;
 		}
-		if (!$this->mapper->exists($this->userId, $address->getEmail())) {
+		if ($address->getEmail() !== null && !$this->mapper->exists($this->userId, $address->getEmail())) {
 			$this->logger->debug("saving new address <{$address->getEmail()}>");
 
 			$entity = new CollectedAddress();

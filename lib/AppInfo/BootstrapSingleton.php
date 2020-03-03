@@ -23,7 +23,6 @@
 
 namespace OCA\Mail\AppInfo;
 
-use OC\Hooks\PublicEmitter;
 use OCA\Mail\Contracts\IAttachmentService;
 use OCA\Mail\Contracts\IAvatarService;
 use OCA\Mail\Contracts\IMailManager;
@@ -32,6 +31,7 @@ use OCA\Mail\Contracts\IMailTransmission;
 use OCA\Mail\Contracts\IUserPreferences;
 use OCA\Mail\Events\BeforeMessageDeletedEvent;
 use OCA\Mail\Events\DraftSavedEvent;
+use OCA\Mail\Events\MessageDeletedEvent;
 use OCA\Mail\Events\MessageSentEvent;
 use OCA\Mail\Events\SaveDraftEvent;
 use OCA\Mail\Http\Middleware\ErrorMiddleware;
@@ -40,6 +40,7 @@ use OCA\Mail\Listener\AddressCollectionListener;
 use OCA\Mail\Listener\DeleteDraftListener;
 use OCA\Mail\Listener\DraftMailboxCreatorListener;
 use OCA\Mail\Listener\FlagRepliedMessageListener;
+use OCA\Mail\Listener\MessageDeletedCacheUpdaterListener;
 use OCA\Mail\Listener\SaveSentMessageListener;
 use OCA\Mail\Listener\TrashMailboxCreatorListener;
 use OCA\Mail\Service\Attachment\AttachmentService;
@@ -48,7 +49,7 @@ use OCA\Mail\Service\Group\IGroupService;
 use OCA\Mail\Service\Group\NextcloudGroupService;
 use OCA\Mail\Service\Group\ContactsGroupService;
 use OCA\Mail\Service\MailManager;
-use OCA\Mail\Service\MailSearch;
+use OCA\Mail\Service\Search\MailSearch;
 use OCA\Mail\Service\MailTransmission;
 use OCA\Mail\Service\UserPreferenceSevice;
 use OCP\AppFramework\IAppContainer;
@@ -91,7 +92,7 @@ class BootstrapSingleton {
 		$this->booted = true;
 	}
 
-	private function initializeAppContainer(IAppContainer $container) {
+	private function initializeAppContainer(IAppContainer $container): void {
 		$transport = $container->getServer()->getConfig()->getSystemValue('app.mail.transport', 'smtp');
 		$testSmtp = $transport === 'smtp';
 
@@ -125,6 +126,7 @@ class BootstrapSingleton {
 
 		$dispatcher->addServiceListener(BeforeMessageDeletedEvent::class, TrashMailboxCreatorListener::class);
 		$dispatcher->addServiceListener(DraftSavedEvent::class, DeleteDraftListener::class);
+		$dispatcher->addServiceListener(MessageDeletedEvent::class, MessageDeletedCacheUpdaterListener::class);
 		$dispatcher->addServiceListener(MessageSentEvent::class, AddressCollectionListener::class);
 		$dispatcher->addServiceListener(MessageSentEvent::class, DeleteDraftListener::class);
 		$dispatcher->addServiceListener(MessageSentEvent::class, FlagRepliedMessageListener::class);

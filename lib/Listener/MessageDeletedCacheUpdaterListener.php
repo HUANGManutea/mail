@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
- * @copyright 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @copyright 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
- * @author 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @author 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -21,27 +23,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace OCA\Mail\IMAP\Search;
+namespace OCA\Mail\Listener;
 
-use Horde_Imap_Client_Search_Query;
-use Horde_Imap_Client_Socket;
+use OCA\Mail\Db\MessageMapper;
+use OCA\Mail\Events\MessageDeletedEvent;
+use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventListener;
 
-class SearchStrategyFactory {
+class MessageDeletedCacheUpdaterListener implements IEventListener {
 
-	public function getStrategy(Horde_Imap_Client_Socket $client,
-								string $mailbox,
-								Horde_Imap_Client_Search_Query $query,
-								?int $cursor): ISearchStrategy {
-		if (!$client->capability->query('SORT') && 'ALL' === $query->__toString()) {
-			return new FullScanSearchStrategy($client, $mailbox, $cursor);
+	/** @var MessageMapper */
+	private $mapper;
+
+	public function __construct(MessageMapper $mapper) {
+		$this->mapper = $mapper;
+	}
+
+	public function handle(Event $event): void {
+		if (!($event instanceof MessageDeletedEvent)) {
+			// Unrelated
+			return;
 		}
 
-		return new ImapSortSearchStrategy(
-			$client,
-			$mailbox,
-			$query,
-			$cursor,
-			new FullScanSearchStrategy($client, $mailbox, $cursor)
+		$this->mapper->deleteByUid(
+			$event->getMailbox(),
+			$event->getMessageId()
 		);
 	}
 

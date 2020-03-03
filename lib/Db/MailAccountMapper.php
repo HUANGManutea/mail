@@ -60,7 +60,7 @@ class MailAccountMapper extends QBMapper {
 	}
 
 	/**
-	 * @param int $id
+	 * Finds an mail account by id
 	 *
 	 * @return MailAccount
 	 * @throws DoesNotExistException
@@ -165,4 +165,13 @@ class MailAccountMapper extends QBMapper {
 
 		return $this->findEntity($query);
 	}
+	public function getAllAccounts(): array  {
+		$qb = $this->db->getQueryBuilder();
+		$query = $qb
+			->select('*')
+			->from($this->getTableName());
+
+		return $this->findEntities($query);
+	}
+
 }

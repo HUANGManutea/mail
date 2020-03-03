@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2017 Christoph Wurst <christoph@winzerhof-wurst.at>
@@ -69,6 +69,12 @@ class AddressList implements Countable, JsonSerializable {
 		return new AddressList($addresses);
 	}
 
+	public static function fromRow(array $recipient): self {
+		return new self([
+			new Address($recipient['label'], $recipient['email'])
+		]);
+	}
+
 	/**
 	 * Get first element
 	 *
@@ -102,8 +108,12 @@ class AddressList implements Countable, JsonSerializable {
 
 	/**
 	 * Iterate over the internal list of addresses using a generator method
+	 *
+	 * @return \Generator
+	 *
+	 * @psalm-return \Generator<int, Address, mixed, void>
 	 */
-	public function iterate() {
+	public function iterate(): \Generator {
 		foreach ($this->addresses as $address) {
 			yield $address;
 		}

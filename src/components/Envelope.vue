@@ -6,6 +6,7 @@
 			:style="{'background-color': accountColor}"
 		></div>
 		<div
+			v-if="data.flags.flagged"
 			class="app-content-list-item-star icon-starred"
 			:data-starred="data.flags.flagged ? 'true' : 'false'"
 			@click.prevent="onToggleFlagged"
@@ -18,7 +19,7 @@
 		</div>
 		<div class="app-content-list-item-line-two" :title="data.subject">
 			<span v-if="data.flags.answered" class="icon-reply" />
-			<span v-if="data.flags.hasAttachments" class="icon-public icon-attachment" />
+			<span v-if="data.flags.hasAttachments === true" class="icon-public icon-attachment" />
 			<span v-if="draft" class="draft">
 				<em>{{ t('mail', 'Draft: ') }}</em>
 			</span>
@@ -39,6 +40,9 @@
 			>
 				{{ t('mail', 'Backup') }}
 			</ActionButton>
+			<ActionButton icon="icon-starred" @click.prevent="onToggleFlagged">{{
+				data.flags.flagged ? t('mail', 'Unfavorite') : t('mail', 'Favorite')
+			}}</ActionButton>
 			<ActionButton icon="icon-mail" @click.prevent="onToggleSeen">{{
 				data.flags.unseen ? t('mail', 'Mark read') : t('mail', 'Mark unread')
 			}}</ActionButton>
@@ -152,12 +156,13 @@ export default {
 		onToggleSeen() {
 			this.$store.dispatch('toggleEnvelopeSeen', this.data)
 		},
-		onDelete(e) {
-			// Don't navigate to the deleted message
-			e.preventDefault()
-
-			this.$emit('delete', this.data)
-			this.$store.dispatch('deleteMessage', this.data)
+		onDelete() {
+			this.$emit('delete', {envelope: this.data})
+			this.$store.dispatch('deleteMessage', {
+				accountId: this.data.accountId,
+				folderId: this.data.folderId,
+				id: this.data.id,
+			})
 		},
 		onShowBackupModal() {
 			this.showBackupModal = true
