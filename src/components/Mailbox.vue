@@ -38,17 +38,7 @@
 				:multiple="false"
 				:placeholder="t('mail', 'Select Saved')"
 			/>
-			<Multiselect
-				v-model="selectedFilters"
-				:options="selectableFilters"
-				track-by="id"
-				label="text"
-				:multiple="true"
-				:placeholder="t('mail', 'Select Filter')"
-				:show-no-options="true"
-			>
-				<span slot="noOptions">{{ t('mail', 'No filter available') }}</span>
-			</Multiselect>
+			<ClientFilter v-model="selectedCaseFilters" :multiple="true" />
 		</div>
 		<EnvelopeList
 			:account="account"
@@ -74,6 +64,7 @@ import MailboxNotCachedError from '../errors/MailboxNotCachedError'
 import {matchError} from '../errors/match'
 import {wait} from '../util/wait'
 import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
+import ClientFilter from './backup/ClientFilter'
 import * as lodash from 'lodash'
 
 export default {
@@ -84,6 +75,7 @@ export default {
 		Error,
 		Loading,
 		Multiselect,
+		ClientFilter,
 	},
 	mixins: [isMobile],
 	props: {
@@ -112,7 +104,7 @@ export default {
 			loadingMore: false,
 			loadingEnvelopes: true,
 			loadingCacheInitialization: false,
-			selectedFilters: null,
+			selectedCaseFilters: null,
 			selectedSaved: null,
 			selectableSaved: [
 				{id: 0, label: t('mail', 'Saved'), value: true},
@@ -121,6 +113,23 @@ export default {
 		}
 	},
 	computed: {
+		getFilterFromId() {
+			return this.$store.getters['backup/getFilterFromId']
+		},
+		clientFilters() {
+			if (!lodash.isEmpty(this.selectedCaseFilters)) {
+				return this.selectedCaseFilters.map(caseFilterId => {
+					return this.getFilterFromId({
+						accountId: this.account.id,
+						caseFilterId: caseFilterId,
+					})
+				})
+			}
+			return []
+		},
+		backupMails() {
+			return this.$store.getters.getBackupMails()
+		},
 		backupEnabled() {
 			return this.$store.getters.isBackupEnabled(this.account.id)
 		},
@@ -139,11 +148,11 @@ export default {
 					}
 				}
 				// add filter on subject
-				if (!lodash.isEmpty(this.selectedFilters)) {
+				if (!lodash.isEmpty(this.clientFilters)) {
 					allFilters.push(envelope => {
 						let filtered = false
-						this.selectedFilters.forEach(filter => {
-							filtered = filtered || envelope.subject.includes(filter.text)
+						this.clientFilters.forEach(clientFilter => {
+							filtered = filtered || envelope.subject.includes(clientFilter)
 						})
 						return filtered
 					})
