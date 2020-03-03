@@ -121,8 +121,11 @@ export default {
 		}
 	},
 	computed: {
+		backupEnabled() {
+			return this.$store.getters.isBackupEnabled(this.account.id)
+		},
 		envelopes() {
-			if (this.$store.getters.isBackupEnabled(this.account.id)) {
+			if (this.backupEnabled) {
 				let mails = []
 				let allFilters = []
 				// add filter on saved only if saved/unsaved filter is selected
