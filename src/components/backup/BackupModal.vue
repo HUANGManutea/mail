@@ -10,8 +10,8 @@
 					<input id="backup-step" v-model="step" type="text" />
 				</form>
 				<div class="backupmail-flex-row backupmail-flex-space-between">
-					<button class="button" @click="closeBackupModal">{{ t('mail', 'Go back') }}</button>
-					<button class="button primary" @click="backupModalSubmit">{{ t('mail', 'Backup') }}</button>
+					<button class="button" @click="closeBackupModal">{{ t('backupmail', 'Go back') }}</button>
+					<button class="button primary" @click="backupModalSubmit">{{ t('backupmail', 'Backup') }}</button>
 				</div>
 			</template>
 			<template v-else>
@@ -96,16 +96,16 @@ export default {
 							step: this.step,
 						})
 						.then(() => {
-							this.$emit('closeBackupModal')
+							this.$emit('close')
 						})
 						.catch(() => {
-							this.$emit('closeBackupModal')
+							this.$emit('close')
 						})
 				}
 			})
 		},
 		closeBackupModal(e) {
-			this.$emit('closeBackupModal')
+			this.$emit('close')
 		},
 		checkCaseAndStep() {
 			const fullFilter = `${this.caseNumber}.${this.step}`

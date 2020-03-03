@@ -1,6 +1,8 @@
-export const filterToText = filter => {
-	return {
-		id: filter.id,
-		text: `${filter.caseNumber}.${filter.step}`,
+import * as lodash from 'lodash'
+
+export const filterToText = (caseNumber, step) => {
+	if (lodash.isEmpty(caseNumber) || lodash.isEmpty(step)) {
+		return null
 	}
+	return `${caseNumber}.${step}`
 }

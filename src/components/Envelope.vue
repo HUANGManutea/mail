@@ -33,13 +33,20 @@
 				<Moment :timestamp="data.dateInt" />
 			</div>
 		</div>
-		<Actions class="app-content-list-item-menu" menu-align="right">
-			<ActionButton
-				:icon="showBackupModal ? 'icon-loading-small' : 'icon-upload'"
-				@click.prevent="onShowBackupModal"
-			>
-				{{ t('mail', 'Backup') }}
-			</ActionButton>
+		<Actions class="app-content-list-item-menu" menu-align="right">	
+			<template v-if="backupEnabled">
+				<ActionButton
+					:icon="showBackupModal ? 'icon-loading-small' : 'icon-upload'"
+					@click.prevent="onShowBackupModal"
+				>
+					{{ t('backupmail', 'Backup') }}
+				</ActionButton>
+			</template>
+			<template v-else>
+				<ActionButton icon="icon-upload" @click.prevent="onShowBackupTransferModal">
+					{{ t('backupmail', 'A traiter') }}
+				</ActionButton>
+			</template>
 			<ActionButton icon="icon-starred" @click.prevent="onToggleFlagged">{{
 				data.flags.flagged ? t('mail', 'Unfavorite') : t('mail', 'Favorite')
 			}}</ActionButton>
@@ -49,7 +56,10 @@
 			<ActionButton icon="icon-delete" @click.prevent="onDelete">{{ t('mail', 'Delete') }}</ActionButton>
 		</Actions>
 		<template v-if="showBackupModal">
-			<BackupModal :envelope="data" @closeBackupModal="closeBackupModal" />
+			<BackupModal :envelope="data" @close="closeBackupModal" />
+		</template>
+		<template v-if="showBackupTransferModal">
+			<BackupTransferModal :envelope="data" @close="closeBackupTransferModal" />
 		</template>
 	</router-link>
 </template>
@@ -58,6 +68,7 @@
 import Actions from '@nextcloud/vue/dist/Components/Actions'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import BackupModal from './backup/BackupModal'
+import BackupTransferModal from './backup/BackupTransferModal'
 import Moment from './Moment'
 
 import Avatar from './Avatar'
@@ -71,6 +82,7 @@ export default {
 		Avatar,
 		Moment,
 		BackupModal,
+		BackupTransferModal,
 	},
 	props: {
 		data: {
@@ -85,9 +97,13 @@ export default {
 	data: function() {
 		return {
 			showBackupModal: false,
+			showBackupTransferModal: false,
 		}
 	},
 	computed: {
+		backupEnabled() {
+			return this.$store.getters.isBackupEnabled(this.data.accountId)
+		},
 		accountColor() {
 			return calculateAccountColor(this.$store.getters.getAccount(this.data.accountId).emailAddress)
 		},
@@ -167,8 +183,14 @@ export default {
 		onShowBackupModal() {
 			this.showBackupModal = true
 		},
+		onShowBackupTransferModal() {
+			this.showBackupTransferModal = true
+		},
 		closeBackupModal(e) {
 			this.showBackupModal = false
+		},
+		closeBackupTransferModal(e) {
+			this.showBackupTransferModal = false
 		},
 	},
 }

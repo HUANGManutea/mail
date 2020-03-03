@@ -27,10 +27,16 @@ import actions from './actions'
 import {getters} from './getters'
 import mutations from './mutations'
 
+import {backup} from './backup/index'
+import * as lodash from 'lodash'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
+	modules: {
+		backup,
+	},
 	state: {
 		preferences: {},
 		accounts: {
@@ -58,7 +64,6 @@ export default new Vuex.Store({
 		},
 		envelopes: {},
 		messages: {},
-		filters: {},
 		backupMails: {},
 		backupAccounts: {},
 		autocompleteEntries: [],

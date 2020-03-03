@@ -89,7 +89,7 @@
 			</Multiselect>
 		</div>
 		<div class="composer-fields">
-			<BackupMessageExtender v-model="selectedFilter" />
+			<BackupNewMessageClientFilter v-model="selectedBackupFilter" />
 			<label for="subject" class="subject-label hidden-visually">
 				{{ t('mail', 'Subject') }}
 			</label>
@@ -199,7 +199,7 @@ import {htmlToText, textToSimpleHtml} from '../util/HtmlHelper'
 import Loading from './Loading'
 import logger from '../logger'
 import TextEditor from './TextEditor'
-import BackupMessageExtender from './backup/BackupMessageExtender'
+import BackupNewMessageClientFilter from './backup/BackupNewMessageClientFilter'
 
 const debouncedSearch = debouncePromise(findRecipient, 500)
 
@@ -223,7 +223,7 @@ export default {
 		Loading,
 		Multiselect,
 		TextEditor,
-		BackupMessageExtender,
+		BackupNewMessageClientFilter,
 	},
 	props: {
 		fromAccount: {
@@ -286,7 +286,7 @@ export default {
 			selectBcc: this.bcc,
 			editorPlainText: this.isPlainText,
 			bus: new Vue(),
-			selectedFilter: null,
+			selectedBackupFilter: null,
 		}
 	},
 	computed: {
@@ -306,6 +306,12 @@ export default {
 		},
 		canSend() {
 			return this.selectTo.length > 0 || this.selectCc.length > 0 || this.selectBcc.length > 0
+		},
+		getFilterFromId() {
+			return this.$store.getters['backup/getFilterFromId']
+		},
+		backupAccount() {
+			return this.$store.getters.getBackupAccount()
 		},
 	},
 	watch: {
@@ -344,19 +350,25 @@ export default {
 				return `"${recipient.label}" <${recipient.email}>`
 			}
 		},
-		getMessageData(uid) {
-			return {
-				account: this.selectedAlias.id,
-				to: this.selectTo.map(this.recipientToRfc822).join(', '),
-				cc: this.selectCc.map(this.recipientToRfc822).join(', '),
-				bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
-				draftUID: uid,
-				subject: this.subjectVal,
-				body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
-				attachments: this.attachments,
-				folderId: this.replyTo ? this.replyTo.folderId : undefined,
-				messageId: this.replyTo ? this.replyTo.messageId : undefined,
-				isHtml: !this.editorPlainText,
+		getMessageData() {
+			return uid => {
+				const filter = this.getFilterFromId({
+					accountId: this.backupAccount.id,
+					caseFilterId: this.selectedBackupFilter,
+				})
+				return {
+					account: this.selectedAlias.id,
+					to: this.selectTo.map(this.recipientToRfc822).join(', '),
+					cc: this.selectCc.map(this.recipientToRfc822).join(', '),
+					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
+					draftUID: uid,
+					subject: `[${filter}] ${this.subjectVal}`,
+					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
+					attachments: this.attachments,
+					folderId: this.replyTo ? this.replyTo.folderId : undefined,
+					messageId: this.replyTo ? this.replyTo.messageId : undefined,
+					isHtml: !this.editorPlainText,
+				}
 			}
 		},
 		saveDraft(data) {
