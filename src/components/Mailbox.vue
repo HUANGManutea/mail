@@ -28,15 +28,37 @@
 		:slow-hint="t('mail', 'Indexing your messages. This can take a bit longer for larger mailboxes.')"
 	/>
 	<EmptyMailbox v-else-if="envelopes.length === 0" key="empty" />
-	<EnvelopeList
-		v-else
-		:account="account"
-		:folder="folder"
-		:envelopes="envelopes"
-		:refreshing="refreshing"
-		:loading-more="loadingMore"
-		@delete="onDelete"
-	/>
+	<div v-else>
+		<div v-if="backupEnabled" class="folder-content-header">
+			<Multiselect
+				v-model="selectedSaved"
+				:options="selectableSaved"
+				track-by="id"
+				label="label"
+				:multiple="false"
+				:placeholder="t('mail', 'Select Saved')"
+			/>
+			<Multiselect
+				v-model="selectedFilters"
+				:options="selectableFilters"
+				track-by="id"
+				label="text"
+				:multiple="true"
+				:placeholder="t('mail', 'Select Filter')"
+				:show-no-options="true"
+			>
+				<span slot="noOptions">{{ t('mail', 'No filter available') }}</span>
+			</Multiselect>
+		</div>
+		<EnvelopeList
+			:account="account"
+			:folder="folder"
+			:envelopes="envelopes"
+			:refreshing="refreshing"
+			:loading-more="loadingMore"
+			@delete="onDelete"
+		/>
+	</div>
 </template>
 
 <script>
@@ -51,6 +73,8 @@ import MailboxLockedError from '../errors/MailboxLockedError'
 import MailboxNotCachedError from '../errors/MailboxNotCachedError'
 import {matchError} from '../errors/match'
 import {wait} from '../util/wait'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
+import * as lodash from 'lodash'
 
 export default {
 	name: 'Mailbox',
@@ -59,6 +83,7 @@ export default {
 		EnvelopeList,
 		Error,
 		Loading,
+		Multiselect,
 	},
 	mixins: [isMobile],
 	props: {
@@ -87,11 +112,64 @@ export default {
 			loadingMore: false,
 			loadingEnvelopes: true,
 			loadingCacheInitialization: false,
+			selectedFilters: null,
+			selectedSaved: null,
+			selectableSaved: [
+				{id: 0, label: t('mail', 'Saved'), value: true},
+				{id: 1, label: t('mail', 'Unsaved'), value: false},
+			],
 		}
 	},
 	computed: {
 		envelopes() {
-			return this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)
+			if (this.$store.getters.isBackupEnabled(this.account.id)) {
+				let mails = []
+				let allFilters = []
+				// add filter on saved only if saved/unsaved filter is selected
+				if (this.selectedSaved != null) {
+					if (this.selectedSaved.value) {
+						// add filter on unsavedMail
+						allFilters.push(mail => mail.saved)
+					} else {
+						// add filter on savedMail
+						allFilters.push(mail => !mail.saved)
+					}
+				}
+				// add filter on subject
+				if (!lodash.isEmpty(this.selectedFilters)) {
+					allFilters.push(envelope => {
+						let filtered = false
+						this.selectedFilters.forEach(filter => {
+							filtered = filtered || envelope.subject.includes(filter.text)
+						})
+						return filtered
+					})
+				}
+				mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)
+				mails = mails.map(mail => {
+					const existingBackupMail = this.$store.getters.getBackupMail(
+						this.account.id,
+						this.folder.id,
+						mail.id
+					)
+					if (existingBackupMail != null) {
+						return {
+							...mail,
+							saved: !!+existingBackupMail.saved,
+						}
+					} else {
+						return mail
+					}
+				})
+				// apply filters
+				let filteredMails = mails
+				allFilters.forEach(predicate => {
+					filteredMails = filteredMails.filter(predicate)
+				})
+				return filteredMails
+			} else {
+				return this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)
+			}
 		},
 	},
 	watch: {
@@ -148,6 +226,17 @@ export default {
 					folderId: this.folder.id,
 					query: this.searchQuery,
 				})
+				if (this.$store.getters.isBackupEnabled(this.account.id)) {
+					await this.$store
+						.dispatch('postBackupEnvelopes', {accountId: this.account.id, envelopes: this.envelopes})
+						.then(() => {
+							return this.$store.dispatch('getBackupMails', {
+								accountId: this.account.id,
+								folderId: this.folder.id,
+							})
+						})
+						.then(() => this.$store.dispatch('getFilters', this.account.id))
+				}
 
 				logger.debug('envelopes fetched', {envelopes})
 
