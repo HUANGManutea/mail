@@ -59,3 +59,8 @@ export default {
 	},
 }
 </script>
+<style lang="scss">
+.vue-treeselect__input {
+	border: none !important;
+}
+</style>

@@ -30,7 +30,6 @@ export const backup = {
 			}
 			const filter = lodash.find(clientCaseFilter.filters, filter => filter.id === filterId)
 			const result = filterToText(clientCaseFilter.clientCase.caseNumber, filter.step)
-			console.log(result)
 			return result
 		},
 	},

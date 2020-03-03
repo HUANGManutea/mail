@@ -11,6 +11,7 @@
 							:options="selectableSaved"
 							track-by="id"
 							label="label"
+							class="multiselect-saved"
 							:multiple="false"
 							:placeholder="t('mail', 'Select Saved')"
 						/>
@@ -106,6 +107,20 @@ export default {
 				this.$route.params.messageUid === 'replyAll'
 			)
 		},
+		clientFilters() {
+			if (!lodash.isEmpty(this.selectedCaseFilters)) {
+				return this.selectedCaseFilters.map(caseFilterId => {
+					return this.getFilterFromId({
+						accountId: this.account.id,
+						caseFilterId: caseFilterId,
+					})
+				})
+			}
+			return []
+		},
+		backupMails() {
+			return this.$store.getters.getBackupMails()
+		},
 		envelopes() {
 			if (this.$store.getters.isBackupEnabled(this.account.id)) {
 				let mails = []
@@ -122,16 +137,11 @@ export default {
 				}
 				// add filter on subject
 				// TODO remove filtering from computed property for performances
-				if (!lodash.isEmpty(this.selectedCaseFilters)) {
+				if (!lodash.isEmpty(this.clientFilters)) {
 					allFilters.push(envelope => {
 						let filtered = false
-						console.log(this.selectedCaseFilters)
-						this.selectedCaseFilters.forEach(caseFilterId => {
-							const filter = this.getFilterFromId({
-								accountId: this.account.id,
-								caseFilterId: caseFilterId,
-							})
-							filtered = filtered || envelope.subject.includes(filter)
+						this.clientFilters.forEach(clientFilter => {
+							filtered = filtered || envelope.subject.includes(clientFilter)
 						})
 						return filtered
 					})
@@ -143,11 +153,7 @@ export default {
 					mails = this.$store.getters.getSearchEnvelopes(this.account.id, this.folder.id)
 				}
 				mails = mails.map(mail => {
-					const existingBackupMail = this.$store.getters.getBackupMail(
-						this.account.id,
-						this.folder.id,
-						mail.id
-					)
+					const existingBackupMail = this.backupMails[this.account.id + '-' + this.folder.id + '-' + mail.id]
 					if (existingBackupMail != null) {
 						return {
 							...mail,
@@ -273,7 +279,7 @@ export default {
 <style lang="scss">
 .folder-content-header {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	max-width: 300px;
 }
 </style>

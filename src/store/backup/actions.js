@@ -20,4 +20,7 @@ export default {
 				return getters.getClientCaseFilters(accountId)
 			})
 	},
+	transferMessage: ({commit, getters}, {envelope, comment}) => {
+		
+	},
 }

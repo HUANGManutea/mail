@@ -89,7 +89,7 @@
 			</Multiselect>
 		</div>
 		<div class="composer-fields">
-			<BackupNewMessageClientFilter v-model="selectedFilter" />
+			<BackupNewMessageClientFilter v-model="selectedBackupFilter" />
 			<label for="subject" class="subject-label hidden-visually">
 				{{ t('mail', 'Subject') }}
 			</label>
@@ -287,7 +287,7 @@ export default {
 			selectBcc: this.bcc,
 			editorPlainText: this.isPlainText,
 			bus: new Vue(),
-			selectedFilter: null,
+			selectedBackupFilter: null,
 		}
 	},
 	computed: {
@@ -305,6 +305,12 @@ export default {
 		},
 		canSend() {
 			return this.selectTo.length > 0 || this.selectCc.length > 0 || this.selectBcc.length > 0
+		},
+		getFilterFromId() {
+			return this.$store.getters['backup/getFilterFromId']
+		},
+		backupAccount() {
+			return this.$store.getters.getBackupAccount()
 		},
 	},
 	watch: {
@@ -345,13 +351,17 @@ export default {
 		},
 		getMessageData() {
 			return uid => {
+				const filter = this.getFilterFromId({
+					accountId: this.backupAccount.id,
+					caseFilterId: this.selectedBackupFilter,
+				})
 				return {
 					account: this.selectedAlias.id,
 					to: this.selectTo.map(this.recipientToRfc822).join(', '),
 					cc: this.selectCc.map(this.recipientToRfc822).join(', '),
 					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
 					draftUID: uid,
-					subject: this.subjectVal,
+					subject: `[${filter}] ${this.subjectVal}`,
 					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
 					attachments: this.attachments,
 					folderId: this.replyTo ? this.replyTo.folderId : undefined,
