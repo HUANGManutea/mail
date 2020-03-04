@@ -118,7 +118,6 @@ export default {
 					clientCase: {caseNumber: this.caseNumber},
 					filters: [{step: this.step}],
 				})
-				console.log(existingCaseFilter)
 				this.filterTested = true
 				this.waiting = false
 				this.canCreate = existingCaseFilter != null
