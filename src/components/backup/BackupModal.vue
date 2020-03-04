@@ -66,6 +66,11 @@ export default {
 			accountId: null,
 		}
 	},
+	computed: {
+		clientCaseFilters() {
+			return this.$store.getters['backup/getClientCaseFilters']
+		},
+	},
 	mounted() {
 		this.init()
 	},
@@ -108,14 +113,15 @@ export default {
 			this.$emit('close')
 		},
 		checkCaseAndStep() {
-			const fullFilter = `${this.caseNumber}.${this.step}`
-			return this.$store.dispatch('getFilters', this.envelope.accountId).then(filters => {
-				const filterExists = lodash(filters)
-					.map(f => f.text)
-					.includes(fullFilter)
+			return this.$store.dispatch('backup/getClientCaseFilters', this.envelope.accountId).then(() => {
+				const existingCaseFilter = lodash.find(this.clientCaseFilters(this.envelope.accountId), {
+					clientCase: {caseNumber: this.caseNumber},
+					filters: [{step: this.step}],
+				})
+				console.log(existingCaseFilter)
 				this.filterTested = true
 				this.waiting = false
-				this.canCreate = filterExists
+				this.canCreate = existingCaseFilter != null
 				return this.canCreate
 			})
 		},

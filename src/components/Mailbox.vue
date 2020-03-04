@@ -247,7 +247,7 @@ export default {
 								folderId: this.folder.id,
 							})
 						})
-						.then(() => this.$store.dispatch('getFilters', this.account.id))
+						.then(() => this.$store.dispatch('backup/getClientCaseFilters', this.account.id))
 				}
 
 				logger.debug('envelopes fetched', {envelopes})

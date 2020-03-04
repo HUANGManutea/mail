@@ -23,6 +23,9 @@ import {defaultTo, head} from 'ramda'
 
 import {UNIFIED_ACCOUNT_ID} from './constants'
 import {normalizedEnvelopeListId, normalizedFolderId, normalizedMessageId} from './normalization'
+import flow from 'lodash/fp/flow'
+import values from 'lodash/fp/values'
+import first from 'lodash/fp/first'
 
 export const getters = {
 	getPreference: state => (key, def) => {
@@ -65,9 +68,6 @@ export const getters = {
 	getMessage: state => (accountId, folderId, id) => {
 		return state.messages[normalizedMessageId(accountId, folderId, id)]
 	},
-	getFilters: state => accountId => {
-		return state.filters[accountId]
-	},
 	isBackupEnabled: state => accountId => {
 		// TODO
 		const account = state.accounts[accountId]
@@ -78,5 +78,11 @@ export const getters = {
 	},
 	getBackupMails: state => () => {
 		return state.backupMails
+	},
+	getBackupAccounts: state => () => {
+		return state.backupAccounts
+	},
+	getBackupAccount: state => () => {
+		return flow(values, first)(state.backupAccounts)
 	},
 }

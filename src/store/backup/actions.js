@@ -1,5 +1,5 @@
 import {getClientCaseFiltersByAccount} from '../../service/BackupService'
-import * as lodash from 'lodash'
+import values from 'lodash/fp/values'
 
 export default {
 	getClientCaseFilters: ({commit, getters}, accountId) => {
@@ -12,15 +12,11 @@ export default {
 			})
 			.then(clientCaseFilters => {
 				// clientCaseFilters are stored by id, put inside list
-				lodash(clientCaseFilters)
-					.values()
-					.forEach(clientCaseFilter => {
-						commit('addClientFilters', clientCaseFilter)
-					})
+				values(clientCaseFilters).forEach(clientCaseFilter => {
+					commit('addClientFilters', clientCaseFilter)
+				})
 				return getters.getClientCaseFilters(accountId)
 			})
 	},
-	transferMessage: ({commit, getters}, {envelope, comment}) => {
-		
-	},
+	transferMessage: ({commit, getters}, {envelope, comment}) => {},
 }

@@ -149,5 +149,5 @@ export function getFullText(accountId, folderId, id) {
 		folderId,
 		id,
 	})
-	return HttpClient.post(url).then(resp => resp.data)
+	return axios.post(url).then(resp => resp.data)
 }
