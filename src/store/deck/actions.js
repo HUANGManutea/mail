@@ -27,16 +27,16 @@ export default {
 			return stack
 		})
 	},
-	createCards: ({commit, getters}, {boardId, userTasks}) => {
+	createCards: ({commit, getters}, {boardTitle, userTasks}) => {
 		const boards = getters.getBoards()
-		const existingBoard = find({id: boardId}, values(boards))
+		const existingBoard = find({title: boardTitle}, values(boards))
 		if (existingBoard == null) {
 			// put in temp board
 			const tempBoard = getters.getTempBoard()
 			const todoTempStack = getters.getTodoStack(tempBoard.id)
 			userTasks.forEach(userTask => {
 				return createCard(tempBoard.id, todoTempStack.id, userTask.description).then(card => {
-					commit('addCard', {boardId: boardId, stackId: todoTempStack.id, card: card})
+					commit('addCard', {boardId: tempBoard.id, stackId: todoTempStack.id, card: card})
 				})
 			})
 		} else {
@@ -44,7 +44,7 @@ export default {
 			const stack = getters.getTodoStack(existingBoard.id)
 			userTasks.forEach(userTask => {
 				return createCard(existingBoard.id, stack.id, userTask.description).then(card => {
-					commit('addCard', {boardId: boardId, stackId: stack.id, card: card})
+					commit('addCard', {boardId: existingBoard.id, stackId: stack.id, card: card})
 				})
 			})
 		}
