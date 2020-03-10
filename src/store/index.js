@@ -28,6 +28,7 @@ import {getters} from './getters'
 import mutations from './mutations'
 
 import {backup} from './backup/index'
+import {deck} from './deck/index'
 import * as lodash from 'lodash'
 
 Vue.use(Vuex)
@@ -36,6 +37,7 @@ export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
 	modules: {
 		backup,
+		deck,
 	},
 	state: {
 		preferences: {},

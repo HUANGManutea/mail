@@ -33,7 +33,7 @@
 				<Moment :timestamp="data.dateInt" />
 			</div>
 		</div>
-		<Actions class="app-content-list-item-menu" menu-align="right">	
+		<Actions class="app-content-list-item-menu" menu-align="right">
 			<template v-if="backupEnabled">
 				<ActionButton
 					:icon="showBackupModal ? 'icon-loading-small' : 'icon-upload'"

@@ -1,5 +1,4 @@
 import {linkTo, generateUrl} from '@nextcloud/router'
-import * as lodash from 'lodash'
 import moment from '@nextcloud/moment'
 export default {
 	Routing: {

@@ -21,6 +21,7 @@ import {translate as t} from '@nextcloud/l10n'
 import AccountForm from '../components/AccountForm'
 import Navigation from '../components/Navigation'
 import logger from '../logger'
+import {TEMP_BOARD_TITLE, TEMP_BOARD_COLOR} from '../store/deck/constants'
 
 export default {
 	name: 'Setup',
@@ -40,6 +41,10 @@ export default {
 		hasAccounts() {
 			return this.$store.getters.accounts.length > 1
 		},
+		deckIsSetup() {
+			console.log(this.$store.getters['deck/getTempBoard']())
+			return this.$store.getters['deck/getTempBoard']() != null
+		},
 	},
 	methods: {
 		onSave(data) {
@@ -48,6 +53,7 @@ export default {
 			return this.$store
 				.dispatch('createAccount', data)
 				.then(account => {
+					// setup backup
 					if (data.backup) {
 						return this.$store
 							.dispatch('createBackupAccount', {
@@ -61,6 +67,13 @@ export default {
 					} else {
 						return account
 					}
+				})
+				.then(account => {
+					// setup deck
+					if (!this.deckIsSetup) {
+						// this.$store.dispatch('deck/createBoard', {title: TEMP_BOARD_TITLE, color: TEMP_BOARD_COLOR})
+					}
+					return account
 				})
 				.then(account => {
 					logger.info('account successfully created, redirecting …')
