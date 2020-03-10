@@ -31,8 +31,6 @@ export default {
 		},
 	},
 	created() {
-		this.$store.dispatch('getBackupAccounts')
-		this.$store.dispatch('deck/getBoards')
 		const accounts = this.$store.getters.accounts
 
 		if (this.$route.name === 'home' && accounts.length > 1) {

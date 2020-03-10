@@ -30,4 +30,14 @@ export default {
 			Vue.set(state, 'tempStackId', stack.id)
 		}
 	},
+	addCard(state, {boardId, stackId, card}) {
+		if (isEmpty(state.boards[boardId].stacks[stackId].cards)) {
+			Vue.set(state.boards[boardId].stacks[stackId], 'cards', [card])
+		} else {
+			const existingStack = find({id: card.id}, state.boards[boardId].stacks[stackId].cards)
+			if (existingStack == null) {
+				state.boards[boardId].stacks[stackId].cards.push(card)
+			}
+		}
+	},
 }

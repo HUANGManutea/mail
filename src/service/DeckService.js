@@ -5,7 +5,6 @@ const deckBaseURL = '/apps/deck/api/v1.0'
 
 // boards
 export const getBoards = () => {
-	console.log(deckBaseURL + '/boards')
 	const url = generateUrl(deckBaseURL + '/boards')
 	return Axios.get(url).then(resp => resp.data)
 }

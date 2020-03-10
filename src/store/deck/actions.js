@@ -1,4 +1,4 @@
-import {getBoards, createBoard, getStacks, createCard} from '../../service/DeckService'
+import {getBoards, createBoard, getStacks, createStack, createCard} from '../../service/DeckService'
 import find from 'lodash/fp/find'
 import values from 'lodash/fp/values'
 
@@ -21,7 +21,13 @@ export default {
 			return stacks
 		})
 	},
-	createTasks: ({commit, getters}, {boardId, userTasks}) => {
+	createStack: ({commit}, {boardId, title, order}) => {
+		return createStack({boardId: boardId, title: title, order: order}).then(stack => {
+			commit('addStack', {boardId: boardId, stack: stack})
+			return stack
+		})
+	},
+	createCards: ({commit, getters}, {boardId, userTasks}) => {
 		const boards = getters.getBoards()
 		const existingBoard = find({id: boardId}, values(boards))
 		if (existingBoard == null) {
@@ -29,13 +35,17 @@ export default {
 			const tempBoard = getters.getTempBoard()
 			const todoTempStack = getters.getTodoStack(tempBoard.id)
 			userTasks.forEach(userTask => {
-				return createCard(tempBoard.id, todoTempStack.id, userTask.description)
+				return createCard(tempBoard.id, todoTempStack.id, userTask.description).then(card => {
+					commit('addCard', {boardId: boardId, stackId: todoTempStack.id, card: card})
+				})
 			})
 		} else {
 			// put in existing board
-			const todoTempStack = getters.getTodoStack(existingBoard.id)
+			const stack = getters.getTodoStack(existingBoard.id)
 			userTasks.forEach(userTask => {
-				return createCard(existingBoard.id, todoTempStack.id, userTask.description)
+				return createCard(existingBoard.id, stack.id, userTask.description).then(card => {
+					commit('addCard', {boardId: boardId, stackId: stack.id, card: card})
+				})
 			})
 		}
 	},

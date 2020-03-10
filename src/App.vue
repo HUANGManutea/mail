@@ -32,6 +32,8 @@ import MailboxLockedError from './errors/MailboxLockedError'
 export default {
 	name: 'App',
 	mounted() {
+		this.$store.dispatch('getBackupAccounts')
+		this.$store.dispatch('deck/getBoards')
 		this.sync()
 	},
 	methods: {
