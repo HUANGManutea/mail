@@ -1,4 +1,4 @@
-import {getClientCaseFiltersByAccount} from '../../service/BackupService'
+import {getClientCaseFiltersByAccount, getClientCaseBoards} from '../../service/BackupService'
 import values from 'lodash/fp/values'
 
 export default {
@@ -17,6 +17,14 @@ export default {
 				})
 				return getters.getClientCaseFilters(accountId)
 			})
+	},
+	getClientCaseBoards: ({commit}) => {
+		return getClientCaseBoards().then(clientCaseBoards => {
+			clientCaseBoards.forEach(clientCaseBoard => {
+				commit('addClientCaseBoard', clientCaseBoard)
+			})
+			return clientCaseBoards
+		})
 	},
 	transferMessage: ({commit, getters}, {envelope, comment}) => {},
 }

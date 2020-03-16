@@ -8,42 +8,10 @@ export const getBoards = () => {
 	const url = generateUrl(deckBaseURL + '/boards')
 	return Axios.get(url).then(resp => resp.data)
 }
-export const createBoard = ({title, color}) => {
-	const url = generateUrl(deckBaseURL + '/boards')
-	return Axios.post(url, {
-		title: title,
-		color: color,
-	}).then(resp => resp.data)
-}
-export const updatePermissionsBoard = ({
-	boardId,
-	type,
-	participant,
-	permissionEdit,
-	permissionShare,
-	permissionManage,
-}) => {
-	const url = generateUrl(deckBaseURL + '/boards/{boardId}/acl', {boardId: boardId})
-	return Axios.put(url, {
-		type: type,
-		participant: participant,
-		permissionEdit: permissionEdit,
-		permissionShare: permissionShare,
-		permissionManage: permissionManage,
-	}).then(resp => resp.data)
-}
 //stacks
 export const getStacks = boardId => {
 	const url = generateUrl(deckBaseURL + '/boards/{boardId}/stacks', {boardId: boardId})
 	return Axios.get(url).then(resp => resp.data)
-}
-
-export const createStack = ({boardId, title, order}) => {
-	const url = generateUrl(deckBaseURL + '/boards/{boardId}/stacks', {boardId: boardId})
-	return Axios.post(url, {
-		title: title,
-		order: order,
-	}).then(resp => resp.data)
 }
 // cards
 export const createCard = ({boardId, stackId, title, description}) => {
@@ -54,5 +22,24 @@ export const createCard = ({boardId, stackId, title, description}) => {
 	return Axios.post(url, {
 		title: title,
 		description: description,
+	}).then(resp => resp.data)
+}
+
+// labels
+export const getLabels = boardId => {
+	const url = generateUrl(deckBaseURL + '/boards/{boardId}/labels', {boardId: boardId})
+	return Axios.get(url).then(resp => resp.data)
+}
+
+export const assignLabel = ({boardId, cardId, labelId}) => {
+	const url = generateUrl(deckBaseURL + '/boards/{boardId}/stacks/{stackId}/cards/{cardId}/assignLabel', {
+		boardId: boardId,
+		cardId: cardId,
+		labelId: labelId,
+	})
+	return Axios.put(url, {
+		boardId: boardId,
+		cardId: cardId,
+		labelId: labelId,
 	}).then(resp => resp.data)
 }

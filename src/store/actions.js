@@ -573,7 +573,6 @@ export default {
 		})
 	},
 	backupMessage({getters, commit, dispatch}, {envelope, caseNumber, step}) {
-		const folder = getters.getFolder(envelope.accountId, envelope.folderId)
 		return getFullText(envelope.accountId, envelope.folderId, envelope.id)
 			.then(content => {
 				return dispatch('writeBackupMessage', {
@@ -598,7 +597,7 @@ export default {
 				throw err
 			})
 	},
-	writeBackupMessage({commit}, {accountId, mailboxId, id, content, caseNumber, step}) {
+	writeBackupMessage(_, {accountId, mailboxId, id, content, caseNumber, step}) {
 		return writeBackupMail({
 			accountId: accountId,
 			mailboxId: mailboxId,

@@ -42,7 +42,6 @@ export default {
 			return this.$store.getters.accounts.length > 1
 		},
 		deckIsSetup() {
-			console.log(this.$store.getters['deck/getTempBoard']())
 			return this.$store.getters['deck/getTempBoard']() != null
 		},
 	},
@@ -67,13 +66,6 @@ export default {
 					} else {
 						return account
 					}
-				})
-				.then(account => {
-					// setup deck
-					if (!this.deckIsSetup) {
-						// this.$store.dispatch('deck/createBoard', {title: TEMP_BOARD_TITLE, color: TEMP_BOARD_COLOR})
-					}
-					return account
 				})
 				.then(account => {
 					logger.info('account successfully created, redirecting …')

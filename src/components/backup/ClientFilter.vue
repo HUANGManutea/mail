@@ -33,11 +33,6 @@ export default {
 			default: true,
 		},
 	},
-	data() {
-		return {
-			selectableFilters: [],
-		}
-	},
 	computed: {
 		selectedFilter: {
 			get() {
@@ -47,15 +42,9 @@ export default {
 				this.$emit('input', selectedFilter)
 			},
 		},
-		clientFilters() {
+		selectableFilters() {
 			return this.$store.getters['backup/getClientFilters']()
 		},
-	},
-	created() {
-		const backupAccount = this.$store.getters.getBackupAccount()
-		return this.$store.dispatch('backup/getClientCaseFilters', backupAccount.id).then(() => {
-			this.selectableFilters = this.clientFilters
-		})
 	},
 }
 </script>

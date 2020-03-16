@@ -9,7 +9,7 @@ export default {
 				[board.id]: board,
 			})
 		} else {
-			Vue.set(state.board, board.id, board)
+			Vue.set(state.boards, board.id, board)
 		}
 		// add temp board to state
 		if (board.title === TEMP_BOARD_TITLE) {
@@ -30,14 +30,17 @@ export default {
 			Vue.set(state, 'tempStackId', stack.id)
 		}
 	},
-	addCard(state, {boardId, stackId, card}) {
-		if (isEmpty(state.boards[boardId].stacks[stackId].cards)) {
-			Vue.set(state.boards[boardId].stacks[stackId], 'cards', [card])
+	addLabel(state, {boardId, label}) {
+		if (isEmpty(state.boards[boardId].labels)) {
+			Vue.set(state.boards[boardId], 'labels', [label])
 		} else {
-			const existingStack = find({id: card.id}, state.boards[boardId].stacks[stackId].cards)
-			if (existingStack == null) {
-				state.boards[boardId].stacks[stackId].cards.push(card)
+			const existingLabel = find({id: label.id}, state.boards[boardId].labels)
+			if (existingLabel == null) {
+				state.boards[boardId].labels.push(label)
 			}
 		}
+	},
+	setCaseFilterBoard(state, {clientCaseId, boardId}) {
+		Vue.set(state.caseFilterBoards, clientCaseId, boardId)
 	},
 }

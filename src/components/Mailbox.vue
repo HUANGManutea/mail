@@ -133,37 +133,35 @@ export default {
 		backupEnabled() {
 			return this.$store.getters.isBackupEnabled(this.account.id)
 		},
-		envelopes() {
-			if (this.backupEnabled) {
-				let mails = []
-				let allFilters = []
-				// add filter on saved only if saved/unsaved filter is selected
-				if (this.selectedSaved != null) {
-					if (this.selectedSaved.value) {
-						// add filter on unsavedMail
-						allFilters.push(mail => mail.saved)
-					} else {
-						// add filter on savedMail
-						allFilters.push(mail => !mail.saved)
-					}
+		allFilters() {
+			let allFilters = []
+			// add filter on saved only if saved/unsaved filter is selected
+			if (this.selectedSaved != null) {
+				if (this.selectedSaved.value) {
+					// add filter on unsavedMail
+					allFilters.push(mail => mail.saved)
+				} else {
+					// add filter on savedMail
+					allFilters.push(mail => !mail.saved)
 				}
-				// add filter on subject
-				if (!lodash.isEmpty(this.clientFilters)) {
-					allFilters.push(envelope => {
-						let filtered = false
-						this.clientFilters.forEach(clientFilter => {
-							filtered = filtered || envelope.subject.includes(clientFilter)
-						})
-						return filtered
+			}
+			// add filter on subject
+			if (!lodash.isEmpty(this.clientFilters)) {
+				allFilters.push(envelope => {
+					let filtered = false
+					this.clientFilters.forEach(clientFilter => {
+						filtered = filtered || envelope.subject.includes(clientFilter)
 					})
-				}
-				mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)
-				mails = mails.map(mail => {
-					const existingBackupMail = this.$store.getters.getBackupMail(
-						this.account.id,
-						this.folder.id,
-						mail.id
-					)
+					return filtered
+				})
+			}
+			return allFilters
+		},
+		envelopes() {
+			let mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)
+			if (this.backupEnabled) {
+				let filteredMails = mails.map(mail => {
+					const existingBackupMail = this.backupMails[this.account.id + '-' + this.folder.id + '-' + mail.id]
 					if (existingBackupMail != null) {
 						return {
 							...mail,
@@ -174,13 +172,12 @@ export default {
 					}
 				})
 				// apply filters
-				let filteredMails = mails
-				allFilters.forEach(predicate => {
+				this.allFilters.forEach(predicate => {
 					filteredMails = filteredMails.filter(predicate)
 				})
 				return filteredMails
 			} else {
-				return this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)
+				return mails
 			}
 		},
 	},

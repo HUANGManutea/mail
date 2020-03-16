@@ -1,19 +1,27 @@
-import {getBoards, createBoard, getStacks, createStack, createCard} from '../../service/DeckService'
+import {getBoards, getStacks, getLabels, createCard, assignLabel} from '../../service/DeckService'
 import find from 'lodash/fp/find'
 import values from 'lodash/fp/values'
+import {SECRETARIAT_LABEL_TITLE, ACCOUNTING_LABEL_TITLE} from './constants'
 
 export default {
-	getBoards: ({commit}) => {
-		return getBoards().then(boards => {
-			boards.forEach(board => commit('addBoard', board))
-			return boards
-		})
-	},
-	createBoard: ({commit}, {title, color}) => {
-		return createBoard({title: title, color: color}).then(board => {
-			commit('addBoard', board)
-			return board
-		})
+	getBoards: ({commit, dispatch}) => {
+		return getBoards()
+			.then(boards => {
+				boards.forEach(board => commit('addBoard', board))
+				return boards
+			})
+			.then(boards => {
+				boards.forEach(board => {
+					dispatch('getStacks', board.id)
+				})
+				return boards
+			})
+			.then(boards => {
+				boards.forEach(board => {
+					dispatch('getLabels', board.id)
+				})
+				return boards
+			})
 	},
 	getStacks: ({commit}, boardId) => {
 		return getStacks(boardId).then(stacks => {
@@ -21,32 +29,40 @@ export default {
 			return stacks
 		})
 	},
-	createStack: ({commit}, {boardId, title, order}) => {
-		return createStack({boardId: boardId, title: title, order: order}).then(stack => {
-			commit('addStack', {boardId: boardId, stack: stack})
-			return stack
+	getLabels: ({commit}, boardId) => {
+		return getLabels(boardId).then(labels => {
+			labels.forEach(label => commit('addLabel', {boardId: boardId, label: label}))
+			return labels
 		})
 	},
-	createCards: ({commit, getters}, {boardTitle, userTasks}) => {
+	createCards: ({commit, getters, dispatch}, {title, userTasksList}) => {
 		const boards = getters.getBoards()
-		const existingBoard = find({title: boardTitle}, values(boards))
-		if (existingBoard == null) {
-			// put in temp board
-			const tempBoard = getters.getTempBoard()
-			const todoTempStack = getters.getTodoStack(tempBoard.id)
-			userTasks.forEach(userTask => {
-				return createCard(tempBoard.id, todoTempStack.id, userTask.description).then(card => {
-					commit('addCard', {boardId: tempBoard.id, stackId: todoTempStack.id, card: card})
+		const existingBoard = find({title: title}, values(boards))
+		const boardTarget = existingBoard == null ? getters.getTempBoard() : existingBoard
+		const stack = getters.getTodoStack(boardTarget.id)
+
+		userTasksList.forEach(userTasks => {
+			userTasks.tasks.forEach(task => {
+				createCard({boardId: boardTarget.id, stackId: stack.id, title: task, description: task}).then(card => {
+					console.log(card)
+					dispatch('assignLabel', {
+						user: userTasks.user,
+						board: boardTarget,
+						cardId: card.id,
+					})
 				})
 			})
-		} else {
-			// put in existing board
-			const stack = getters.getTodoStack(existingBoard.id)
-			userTasks.forEach(userTask => {
-				return createCard(existingBoard.id, stack.id, userTask.description).then(card => {
-					commit('addCard', {boardId: existingBoard.id, stackId: stack.id, card: card})
-				})
-			})
-		}
+		})
+	},
+	assignLabel({commit}, {user, board, cardId}) {
+		console.log(board)
+		const secretariatLabel = find({title: SECRETARIAT_LABEL_TITLE}, board.labels)
+		const accountingLabel = find({title: ACCOUNTING_LABEL_TITLE}, board.labels)
+
+		const label = user === ACCOUNTING_LABEL_TITLE ? accountingLabel : secretariatLabel
+		return assignLabel({boardId: board.id, cardId: cardId, labelId: label.id})
+	},
+	setCaseFilterBoard: ({commit}, {clientCaseId, boardId}) => {
+		commit('setCaseFilterBoard', {clientCaseId: clientCaseId, boardId: boardId})
 	},
 }

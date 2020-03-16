@@ -81,8 +81,7 @@ export default {
 			this.waiting = true
 			if (this.envelope != null) {
 				//find case number and step
-				const pattern = /\[(\d+)\.(\d+)\]/
-				const matchValues = this.envelope.subject.match(pattern)
+				const matchValues = this.envelope.subject.match(backup.TagPattern)
 				this.caseNumber = matchValues[1]
 				this.step = matchValues[2]
 				this.accountId = this.envelope.accountId

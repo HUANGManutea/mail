@@ -62,3 +62,8 @@ export const writeBackupMail = ({accountId, mailboxId, id, content, caseNumber, 
 		step: step,
 	}).then(resp => resp.data)
 }
+
+export const getClientCaseBoards = _ => {
+	const url = generateUrl('/apps/backupmail/api/boards')
+	return Axios.get(url).then(resp => resp.data)
+}
