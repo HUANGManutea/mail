@@ -52,4 +52,8 @@ export default {
 .vue-treeselect__input {
 	border: none !important;
 }
+.vue-treeselect__value-remove,
+.vue-treeselect__multi-value-label {
+	padding: 0 !important;
+}
 </style>

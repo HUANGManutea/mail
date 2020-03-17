@@ -145,9 +145,3 @@ export default {
 	},
 }
 </script>
-<style lang="scss">
-.folder-content-header {
-	display: flex;
-	flex-direction: row;
-}
-</style>

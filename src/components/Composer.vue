@@ -350,25 +350,23 @@ export default {
 				return `"${recipient.label}" <${recipient.email}>`
 			}
 		},
-		getMessageData() {
-			return uid => {
-				const filter = this.getFilterFromId({
-					accountId: this.backupAccount.id,
-					caseFilterId: this.selectedBackupFilter,
-				})
-				return {
-					account: this.selectedAlias.id,
-					to: this.selectTo.map(this.recipientToRfc822).join(', '),
-					cc: this.selectCc.map(this.recipientToRfc822).join(', '),
-					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
-					draftUID: uid,
-					subject: `(${filter}) ${this.subjectVal}`,
-					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
-					attachments: this.attachments,
-					folderId: this.replyTo ? this.replyTo.folderId : undefined,
-					messageId: this.replyTo ? this.replyTo.messageId : undefined,
-					isHtml: !this.editorPlainText,
-				}
+		getMessageData(uid) {
+			const filter = this.getFilterFromId({
+				accountId: this.backupAccount.id,
+				caseFilterId: this.selectedBackupFilter,
+			})
+			return {
+				account: this.selectedAlias.id,
+				to: this.selectTo.map(this.recipientToRfc822).join(', '),
+				cc: this.selectCc.map(this.recipientToRfc822).join(', '),
+				bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
+				draftUID: uid,
+				subject: `(${filter}) ${this.subjectVal}`,
+				body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
+				attachments: this.attachments,
+				folderId: this.replyTo ? this.replyTo.folderId : undefined,
+				messageId: this.replyTo ? this.replyTo.messageId : undefined,
+				isHtml: !this.editorPlainText,
 			}
 		},
 		saveDraft(data) {

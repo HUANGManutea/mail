@@ -447,5 +447,9 @@ export default {
 	},
 }
 </script>
-
-<style scoped></style>
+<style lang="scss" scoped>
+.folder-content-header {
+	display: flex;
+	flex-direction: column;
+}
+</style>
