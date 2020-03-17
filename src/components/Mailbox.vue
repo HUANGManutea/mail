@@ -134,28 +134,28 @@ export default {
 			return this.$store.getters.isBackupEnabled(this.account.id)
 		},
 		allFilters() {
-			let allFilters = []
+			let filterList = []
 			// add filter on saved only if saved/unsaved filter is selected
 			if (this.selectedSaved != null) {
 				if (this.selectedSaved.value) {
 					// add filter on unsavedMail
-					allFilters.push(mail => mail.saved)
+					filterList.push(mail => mail.saved)
 				} else {
 					// add filter on savedMail
-					allFilters.push(mail => !mail.saved)
+					filterList.push(mail => !mail.saved)
 				}
 			}
 			// add filter on subject
 			if (!lodash.isEmpty(this.clientFilters)) {
-				allFilters.push(envelope => {
+				filterList.push(envelope => {
 					let filtered = false
 					this.clientFilters.forEach(clientFilter => {
-						filtered = filtered || envelope.subject.includes(clientFilter)
+						filtered = filtered || RegExp('\\(' + clientFilter + '\\)').test(envelope.subject)
 					})
 					return filtered
 				})
 			}
-			return allFilters
+			return filterList
 		},
 		envelopes() {
 			let mails = this.$store.getters.getEnvelopes(this.account.id, this.folder.id, this.searchQuery)

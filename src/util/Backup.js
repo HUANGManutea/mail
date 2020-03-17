@@ -3,7 +3,7 @@ import moment from '@nextcloud/moment'
 import toNumber from 'lodash/fp/toNumber'
 
 export default {
-	TagPattern: /\[(\d+)\.(\d+)\]/,
+	TagPattern: /\((\d+)\.(\d+)\)/,
 	Routing: {
 		baseUrl: () =>
 			window.location.protocol + '//' + window.location.host + generateUrl(linkTo('backupmail', '')) + '#',

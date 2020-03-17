@@ -362,7 +362,7 @@ export default {
 					cc: this.selectCc.map(this.recipientToRfc822).join(', '),
 					bcc: this.selectBcc.map(this.recipientToRfc822).join(', '),
 					draftUID: uid,
-					subject: `[${filter}] ${this.subjectVal}`,
+					subject: `(${filter}) ${this.subjectVal}`,
 					body: this.editorPlainText ? htmlToText(this.bodyVal) : this.bodyVal,
 					attachments: this.attachments,
 					folderId: this.replyTo ? this.replyTo.folderId : undefined,
