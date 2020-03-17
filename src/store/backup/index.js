@@ -18,11 +18,9 @@ export const backup = {
 		},
 		getClientCaseFilterByCaseNumber: state => ({accountId, caseNumber}) => {
 			const clientCaseFilters = state.clientCaseFilters[accountId]
-			return lodash(clientCaseFilters)
-				.values()
-				.find(ccf => {
-					return ccf.clientCase.caseNumber === caseNumber
-				})
+			return lodash.find(lodash.values(clientCaseFilters), ccf => {
+				return ccf.clientCase.caseNumber === caseNumber
+			})
 		},
 		getFilterFromId: state => ({accountId, caseFilterId}) => {
 			if (lodash.isEmpty(caseFilterId) || accountId == null) {

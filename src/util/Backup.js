@@ -1,5 +1,7 @@
 import {linkTo, generateUrl} from '@nextcloud/router'
 import moment from '@nextcloud/moment'
+import toNumber from 'lodash/fp/toNumber'
+
 export default {
 	TagPattern: /\[(\d+)\.(\d+)\]/,
 	Routing: {
@@ -23,7 +25,7 @@ export default {
 	},
 	Client: {
 		getFullName: client => {
-			if (client.type === 0) {
+			if (toNumber(client.type) === 0) {
 				return `${client.lastname} ${client.firstname}`
 			}
 			return client.companyName

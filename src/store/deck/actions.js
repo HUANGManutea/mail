@@ -44,7 +44,6 @@ export default {
 		userTasksList.forEach(userTasks => {
 			userTasks.tasks.forEach(task => {
 				createCard({boardId: boardTarget.id, stackId: stack.id, title: task, description: task}).then(card => {
-					console.log(card)
 					dispatch('assignLabel', {
 						user: userTasks.user,
 						board: boardTarget,
@@ -55,7 +54,6 @@ export default {
 		})
 	},
 	assignLabel({commit}, {user, board, cardId}) {
-		console.log(board)
 		const secretariatLabel = find({title: SECRETARIAT_LABEL_TITLE}, board.labels)
 		const accountingLabel = find({title: ACCOUNTING_LABEL_TITLE}, board.labels)
 

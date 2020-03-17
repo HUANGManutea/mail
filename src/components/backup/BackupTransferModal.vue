@@ -72,7 +72,6 @@ export default {
 				title: null,
 				userTasksList: null,
 			}
-			const accountId = this.envelope.accountId
 			// pre fill postDetails title
 			postDetails.title = TEMP_BOARD_TITLE
 			// parse user tasks
@@ -84,12 +83,15 @@ export default {
 			if (!lodash.isEmpty(groups) && groups.length > 1) {
 				const caseNumber = groups[1]
 
-				const existingCcf = this.getClientCaseFilterByCaseNumber(accountId, caseNumber)
+				const existingCcf = this.getClientCaseFilterByCaseNumber({
+					accountId: this.backupAccount.id,
+					caseNumber: caseNumber,
+				})
 
 				if (existingCcf != null) {
 					// get corresponding board
 					const fullname = backup.Client.getFullName(existingCcf.client)
-					const title = `${existingCcf.clientCase.caseNumber} - ${fullname} vs ${existingCcf.clientCase}`
+					const title = `${existingCcf.clientCase.caseNumber} - ${fullname} vs ${existingCcf.clientCase.opponentName}`
 					postDetails.title = title
 				}
 			}
